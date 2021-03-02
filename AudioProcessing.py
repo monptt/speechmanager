@@ -1,6 +1,7 @@
 import time
 import numpy as np
 from PyQt5.QtCore import QThread, QObject
+import mora
 
 class AudioProcessingClass(QObject):
     def __init__(self, main):
@@ -8,9 +9,15 @@ class AudioProcessingClass(QObject):
         self.mainWindow = main
 
     def run(self):
+        y = np.zeros(10)
         while True:
-            # 0.5秒ごとに，ランダムな10個の値でグラフを更新する
-            time.sleep(0.5)
-            x = np.arange(10)
-            y = np.random.rand(10)
+            moraNum, moraNumPerSec = mora.run()
+            print(moraNum)
+            print(moraNumPerSec)
+            y = np.append(y,moraNumPerSec)
+            y = np.delete(y,0)
+            x = np.arange(len(y))
+            print(x)
+            print(y)
             self.mainWindow.graph.update(x, y)
+            self.mainWindow.show()
