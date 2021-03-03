@@ -20,4 +20,3 @@ class AudioProcessingClass(QObject):
             print(x)
             print(y)
             self.mainWindow.graph.update(x, y)
-            self.mainWindow.show()
