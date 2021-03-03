@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 import pyqtgraph as pg
 import sys
 
-from PyQt5.QtCore import QThread, QObject
+from PyQt5.QtCore import QThread, QObject, pyqtSignal
 import AudioProcessing #音声処理用
 
 class MainWindow(QtWidgets.QWidget):
@@ -14,12 +14,13 @@ class MainWindow(QtWidgets.QWidget):
 
         ### 音声処理スレッド　###
         # 外部スレッドからグラフを更新(graph.update(y))する
-        self.audioProcessing = AudioProcessing.AudioProcessingClass(self)
         self.audioThread = QThread()
-
+        self.audioProcessing = AudioProcessing.AudioProcessingClass(self)
         self.audioProcessing.moveToThread(self.audioThread)
 
         self.audioThread.started.connect(self.audioProcessing.run)
+        self.audioProcessing.updateSignal.connect(self.graph.update)
+
         self.audioThread.start()
 
     def initUI(self):
