@@ -20,7 +20,8 @@ def recording(sec):
     DEVICE_INDEX = -1   #default
     FORMAT = pyaudio.paInt16 # 16bit
     CHANNELS = 1             # monaural
-    RATE = 16000             # sampling frequency [Hz]
+
+    RATE = 16000           # sampling frequency [Hz]
     CHUNK = RATE * sec
 
     time = sec # record time [s]       
