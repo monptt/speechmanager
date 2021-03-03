@@ -20,12 +20,16 @@ class MainWindow(QtWidgets.QWidget):
 
         self.audioThread.started.connect(self.audioProcessing.run)
         self.audioProcessing.updateSignal.connect(self.graph.update)
-
+        self.audioProcessing.updateSignal.connect(self.realtime.update)
         self.audioThread.start()
 
     def initUI(self):
         self.graph = graphWindow(self)
         self.graph.setGeometry(20, 20, 500, 300)
+        self.realtime = nowWindow(self)
+        self.realtime.setGeometry(600,20,100,300)
+
+
 
 
 class graphWindow(QtWidgets.QWidget):
@@ -51,14 +55,22 @@ class nowWindow(QtWidgets.QWidget):
     def __init__(self,parent=None):
         super().__init__(parent)
         self.graphWidget = pg.PlotWidget(self)
+        self.graphWidget.setGeometry(0, 0, 500, 300)
         x = [0]
         y = [5]
-        self.bg = pg.BarGraphItem(x=x,height=y,width=1,brush='r')
+        self.bg = pg.BarGraphItem(x=x,height=y,width=0.5,brush='r')
         self.graphWidget.addItem(self.bg)
-
+        self.graphWidget.setXRange(0,1)
+        self.graphWidget.setYRange(0,6)
+        self.graphWidget.setBackground("#ffff")
+    
+    def update(self, x, y):
+        print("----real----debug------")
+        print(y[-1])
+        self.bg.setOpts(height=[y[-1]]) 
 def main():
     app = QtWidgets.QApplication(sys.argv)
-    main = nowWindow()
+    main = MainWindow()
     main.show()
     sys.exit(app.exec_())
 
