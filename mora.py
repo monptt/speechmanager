@@ -12,6 +12,7 @@ import scipy.signal
 import pyaudio
 import wave
 import time
+import struct
 
 SECOND = 1
 
@@ -23,7 +24,6 @@ def recording(sec):
     CHUNK = RATE * sec
 
     time = sec # record time [s]       
-    output_path = "./sample1.wav"
 
     p = pyaudio.PyAudio()
 
@@ -48,16 +48,16 @@ def recording(sec):
     stream.close()
     p.terminate()
 
-    wf = wave.open(output_path, 'wb')
-    wf.setnchannels(CHANNELS)
-    wf.setsampwidth(p.get_sample_size(FORMAT))
-    wf.setframerate(RATE)
-    wf.writeframes(b''.join(frames))
-    wf.close()
+    print(RATE)
+    print(p.get_sample_size(FORMAT))
 
-def getMfcc(fileName):
-    (rate, sig) = scipy.io.wavfile.read(fileName)
-    mfcc = psf.mfcc(sig, rate)
+    return RATE, p.get_sample_size(FORMAT), b''.join(frames)
+
+def getMfcc(RATE, sampleBytes, frames):
+    intFrames = struct.unpack(f'<{len(frames) // sampleBytes}h', frames)
+    intFrames = np.array(intFrames)
+    print(type(intFrames))
+    mfcc = psf.mfcc(intFrames, RATE)
     delta = psf.delta(mfcc, 2)
     deltaDelta = psf.delta(delta, 2)
     mfccFeature = np.c_[mfcc, delta, deltaDelta]
@@ -97,12 +97,12 @@ def getMoraPerSec(vadSection,moraPositionsNum,sec):
     return moraNum, moraNumPerSec
 
 def run():
-    recording(SECOND)
+    RATE, sampleBytes, frames = recording(SECOND)
     # defines
     vadThreshold = 3
 
     # MFCC取得
-    mfcc = getMfcc("./sample1.wav")
+    mfcc = getMfcc(RATE, sampleBytes, frames)
     dataLength = len(mfcc)
     mfccPower = mfcc[:,0]
     deltaPower = mfcc[:,13]
