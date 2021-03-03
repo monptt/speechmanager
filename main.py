@@ -46,9 +46,18 @@ class graphWindow(QtWidgets.QWidget):
         print(x, y)
         self.line.setData(x,y)
 
+class nowWindow(QtWidgets.QWidget):
+    def __init__(self,parent=None):
+        super().__init__(parent)
+        self.graphWidget = pg.PlotWidget(self)
+        x = [0]
+        y = [5]
+        self.bg = pg.BarGraphItem(x=x,height=y,width=1,brush='r')
+        self.graphWidget.addItem(self.bg)
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
-    main = MainWindow()
+    main = nowWindow()
     main.show()
     sys.exit(app.exec_())
 
