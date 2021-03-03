@@ -20,6 +20,7 @@ class AudioProcessingClass(QObject):
     def __init__(self, main):
         super().__init__()
         self.mainWindow = main
+        self.loopback = False
 
         ### PyAudioの設定 ###
         self.p = pyaudio.PyAudio()
@@ -27,6 +28,7 @@ class AudioProcessingClass(QObject):
                         channels=CHANNELS,
                         rate=RATE,
                         input=True,
+                        output=True,
                         input_device_index = DEVICE_INDEX,
                         frames_per_buffer=CHUNK)
 
@@ -34,6 +36,11 @@ class AudioProcessingClass(QObject):
         y = np.zeros(10)
         while True:
             frames = self.stream.read(CHUNK)
+
+            if self.loopback==True:
+                self.stream.write(frames)   #自分の声を聞く
+
+            # モーラ数カウント
             frames = b''.join([frames])
             sampleBytes = self.p.get_sample_size(FORMAT)
 
