@@ -17,7 +17,7 @@ import struct
 SECOND = 1
 
 def recording(sec):
-    DEVICE_INDEX = 0
+    DEVICE_INDEX = -1   #default
     FORMAT = pyaudio.paInt16 # 16bit
     CHANNELS = 1             # monaural
     RATE = 44100             # sampling frequency [Hz]
