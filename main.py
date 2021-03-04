@@ -95,7 +95,10 @@ class nowWindow(QtWidgets.QWidget):
         self.graphWidget.setBackground("#ffff")
     
     def update(self, x, y):
-        self.bg.setOpts(height=[y[-1]]) 
+        if y[-1]<4:
+            self.bg.setOpts(height=[y[-1]],brush='g')
+        else:
+            self.bg.setOpts(height=[y[-1]],brush='r') 
 def main():
     app = QtWidgets.QApplication(sys.argv)
     main = MainWindow()
