@@ -27,6 +27,14 @@ class MainWindow(QtWidgets.QWidget):
         self.graph = graphWindow(self)
         self.graph.setGeometry(20, 20, 500, 300)
 
+        # 自分の声を聞くかどうか
+        self.loopBackCheckBox = QtWidgets.QCheckBox("自分の声を聞く", self)
+        def toggleLoopback():
+            self.audioProcessing.loopback = not self.audioProcessing.loopback
+        self.loopBackCheckBox.stateChanged.connect(toggleLoopback)
+        self.loopBackCheckBox.setGeometry(10, 350, 100, 20)
+        self.loopBackCheckBox.show()
+
 
 class graphWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
