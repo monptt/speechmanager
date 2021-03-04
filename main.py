@@ -9,7 +9,7 @@ class MainWindow(QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
-        self.setGeometry(100, 100, 800, 500)
+        self.setGeometry(100, 100, 1000, 1000)
         self.initUI()
 
         ### 音声処理スレッド　###
@@ -30,16 +30,15 @@ class MainWindow(QtWidgets.QWidget):
         self.graph.setGeometry(20, 20, 500, 300)
         self.realtime = nowWindow(self)
         self.realtime.setGeometry(600,20,100,300)
-
-
         self.average = averageNum(self)
+        self.average.setGeometry(20,330,500,50)
         # 自分の声を聞くかどうか
         self.loopBackCheckBox = QtWidgets.QCheckBox("自分の声を聞く", self)
         def toggleLoopback():
             self.audioProcessing.loopback = not self.audioProcessing.loopback
         self.loopBackCheckBox.stateChanged.connect(toggleLoopback)
-        self.loopBackCheckBox.setGeometry(10, 400, 200, 20)
-        self.loopBackCheckBox.show()
+        self.loopBackCheckBox.setGeometry(20, 400, 500, 50)
+        # self.loopBackCheckBox.show()
 
 
 class graphWindow(QtWidgets.QWidget):
@@ -72,15 +71,15 @@ class averageNum(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.label = QtWidgets.QLabel(f'<h1>average:{0.0}[mora/sec]</h1>', self)
-        self.label.setGeometry(10, 350, 500, 50)
+        self.label = QtWidgets.QLabel(f'<h3>average:{0.0}[mora/sec]</h3>', self)
+        self.label.setGeometry(0, 0, 500, 50)
 
 
     # 描画更新関数
     def update(self, newAverage):
         print("update average")
         print(newAverage)
-        self.label.setText(f'<h1>average:{round(newAverage,3)}[mora/sec]</h1>')
+        self.label.setText(f'<h3>average:{round(newAverage,3)}[mora/sec]</h3>')
 
 class nowWindow(QtWidgets.QWidget):
     def __init__(self,parent=None):
@@ -96,8 +95,6 @@ class nowWindow(QtWidgets.QWidget):
         self.graphWidget.setBackground("#ffff")
     
     def update(self, x, y):
-        print("----real----debug------")
-        print(y[-1])
         self.bg.setOpts(height=[y[-1]]) 
 def main():
     app = QtWidgets.QApplication(sys.argv)
