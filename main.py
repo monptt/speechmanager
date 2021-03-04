@@ -20,6 +20,7 @@ class MainWindow(QtWidgets.QWidget):
 
         self.audioThread.started.connect(self.audioProcessing.run)
         self.audioProcessing.updateSignal.connect(self.graph.update)
+        self.audioProcessing.updateSignal.connect(self.realtime.update)
         self.audioProcessing.updateSignal_ave.connect(self.average.update)
         self.audioProcessing.updateSignal_ave.connect(self.graph.update_ave)
         self.audioThread.start()
@@ -27,6 +28,10 @@ class MainWindow(QtWidgets.QWidget):
     def initUI(self):
         self.graph = graphWindow(self)
         self.graph.setGeometry(20, 20, 500, 300)
+        self.realtime = nowWindow(self)
+        self.realtime.setGeometry(600,20,100,300)
+
+
         self.average = averageNum(self)
         # 自分の声を聞くかどうか
         self.loopBackCheckBox = QtWidgets.QCheckBox("自分の声を聞く", self)
@@ -77,6 +82,23 @@ class averageNum(QtWidgets.QWidget):
         print(newAverage)
         self.label.setText(f'<h1>average:{round(newAverage,3)}[mora/sec]</h1>')
 
+class nowWindow(QtWidgets.QWidget):
+    def __init__(self,parent=None):
+        super().__init__(parent)
+        self.graphWidget = pg.PlotWidget(self)
+        self.graphWidget.setGeometry(0, 0, 500, 300)
+        x = [0]
+        y = [5]
+        self.bg = pg.BarGraphItem(x=x,height=y,width=0.5,brush='r')
+        self.graphWidget.addItem(self.bg)
+        self.graphWidget.setXRange(0,1)
+        self.graphWidget.setYRange(0,6)
+        self.graphWidget.setBackground("#ffff")
+    
+    def update(self, x, y):
+        print("----real----debug------")
+        print(y[-1])
+        self.bg.setOpts(height=[y[-1]]) 
 def main():
     app = QtWidgets.QApplication(sys.argv)
     main = MainWindow()
