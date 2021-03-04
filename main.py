@@ -67,7 +67,7 @@ class averageNum(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.label = QtWidgets.QLabel(f'<h1>average:{0.0}</h1>', self)
+        self.label = QtWidgets.QLabel(f'<h1>average:{0.0}[mora/sec]</h1>', self)
         self.label.setGeometry(10, 350, 500, 50)
 
 
@@ -75,7 +75,7 @@ class averageNum(QtWidgets.QWidget):
     def update(self, newAverage):
         print("update average")
         print(newAverage)
-        self.label.setText(f'<h1>average:{newAverage}</h1>')
+        self.label.setText(f'<h1>average:{round(newAverage,3)}[mora/sec]</h1>')
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
