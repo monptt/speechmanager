@@ -14,46 +14,6 @@ import wave
 import time
 import struct
 
-SECOND = 1
-
-def recording(sec):
-    DEVICE_INDEX = -1   #default
-    FORMAT = pyaudio.paInt16 # 16bit
-    CHANNELS = 1             # monaural
-
-    RATE = 16000           # sampling frequency [Hz]
-    CHUNK = RATE * sec
-
-    time = sec # record time [s]       
-
-    p = pyaudio.PyAudio()
-
-    stream = p.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
-                    input=True,
-                    input_device_index = DEVICE_INDEX,
-                    frames_per_buffer=CHUNK)
-
-    print("recording ...")
-
-    frames = []
-
-    for i in range(0, int(RATE / CHUNK * time)):
-        data = stream.read(CHUNK)
-        frames.append(data)
-
-    print("done.")
-
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
-
-    print(RATE)
-    print(p.get_sample_size(FORMAT))
-
-    return RATE, p.get_sample_size(FORMAT), b''.join(frames)
-
 def getMfcc(RATE, sampleBytes, frames):
     intFrames = struct.unpack(f'<{len(frames) // sampleBytes}h', frames)
     intFrames = np.array(intFrames)
@@ -97,8 +57,8 @@ def getMoraPerSec(vadSection,moraPositionsNum,sec):
     moraNumPerSec = moraNum / sec
     return moraNum, moraNumPerSec
 
-def run():
-    RATE, sampleBytes, frames = recording(SECOND)
+def run(RATE, sampleBytes, frames, SECOND):
+    #RATE, sampleBytes, frames = recording(SECOND)
     # defines
     vadThreshold = 3
 
@@ -122,7 +82,7 @@ def run():
     moraPositions[vad <= vadThreshold] = 0
     sx = np.where(moraPositions == 1)[0]
 
-    moraNum, moraNumPerSec = getMoraPerSec(vadSection,len(sx),SECOND)
+    moraNum, moraNumPerSec = getMoraPerSec(vadSection,len(sx), SECOND)
 
     vadThreashold = 2
 
