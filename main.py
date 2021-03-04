@@ -47,6 +47,7 @@ class graphWindow(QtWidgets.QWidget):
 
         self.graphWidget = pg.PlotWidget(self)
         self.graphWidget.setGeometry(0, 0, 500, 300)
+        self.graphWidget.setYRange(0,7)
 
         self.x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         self.y = [30, 32, 34, 32, 33, 31, 29, 32, 35, 45]
@@ -91,7 +92,7 @@ class nowWindow(QtWidgets.QWidget):
         self.bg = pg.BarGraphItem(x=x,height=y,width=0.5,brush='r')
         self.graphWidget.addItem(self.bg)
         self.graphWidget.setXRange(0,1)
-        self.graphWidget.setYRange(0,6)
+        self.graphWidget.setYRange(0,7)
         self.graphWidget.setBackground("#ffff")
     
     def update(self, x, y):
