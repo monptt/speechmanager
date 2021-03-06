@@ -67,7 +67,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # fname[0]は選択したファイルのパス（ファイル名を含む）
         if fname[0]:
             # ファイル読み込み
-            f = open(fname[0], 'r')
+            f = open(fname[0], 'r', encoding="utf-8")
 
             # テキストエディタにファイル内容書き込み
             with f:
