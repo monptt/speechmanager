@@ -1,14 +1,16 @@
 from PyQt5 import QtWidgets
+from PyQt5.QtGui import QIcon
 import pyqtgraph as pg
 import sys
 
 from PyQt5.QtCore import QThread, QObject, pyqtSignal
 import AudioProcessing #音声処理用
 
-class MainWindow(QtWidgets.QWidget):
+class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
+        self.setWindowTitle('Speech Manager 0.0.1')
         self.setGeometry(100, 100, 1000, 1000)
         self.initUI()
 
@@ -26,6 +28,20 @@ class MainWindow(QtWidgets.QWidget):
         self.audioThread.start()
 
     def initUI(self):
+        # メニューバーのアイコン設定
+        self.openFile = QtWidgets.QAction(QIcon('computer_folder.png'), 'Open', self)
+        # ショートカット設定
+        self.openFile.setShortcut('Ctrl+O')
+        # ステータスバー設定
+        self.openFile.setStatusTip('Open new File')
+        self.openFile.triggered.connect(self.loadText)
+
+        # メニューバー作成
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(self.openFile)   
+        
+        
         self.graph = graphWindow(self)
         self.graph.setGeometry(20, 20, 500, 300)
         self.realtime = nowWindow(self)
@@ -38,7 +54,36 @@ class MainWindow(QtWidgets.QWidget):
             self.audioProcessing.loopback = not self.audioProcessing.loopback
         self.loopBackCheckBox.stateChanged.connect(toggleLoopback)
         self.loopBackCheckBox.setGeometry(20, 400, 500, 50)
+        self.text = textWindow(self)
+        self.text.setGeometry(20, 500, 500, 50)
+
         # self.loopBackCheckBox.show()
+
+    def loadText(self):
+
+        # 第二引数はダイアログのタイトル、第三引数は表示するパス
+        fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
+
+        # fname[0]は選択したファイルのパス（ファイル名を含む）
+        if fname[0]:
+            # ファイル読み込み
+            f = open(fname[0], 'r')
+
+            # テキストエディタにファイル内容書き込み
+            with f:
+                data = f.read()
+                self.text.update(data)
+    
+class textWindow(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.label = QtWidgets.QLabel('<h3>You can upload text</h3>', self)
+        self.label.setGeometry(0, 0, 500, 50)
+    def update(self, newText):
+        print("update text")
+        print(newText)
+        self.label.setText(f'<h3>{newText}</h3>')
+
 
 
 class graphWindow(QtWidgets.QWidget):
@@ -100,11 +145,15 @@ class nowWindow(QtWidgets.QWidget):
             self.bg.setOpts(height=[y[-1]],brush='g')
         else:
             self.bg.setOpts(height=[y[-1]],brush='r') 
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
     main = MainWindow()
     main.show()
     sys.exit(app.exec_())
+
+
+
 
 
 if __name__ == '__main__':
