@@ -28,20 +28,6 @@ def makeWordData(word):
         d["nmora"] = 0
     return d
 
-def makeTextData(text):
-    textData = []
-    words = mecab(text).split("\n")
-    for word in words:
-        w = re.split("[\t,]", word)
-        if(w[0]=="EOS"):
-            break
-
-        worddata = makeWordData(w)
-        textData.append(worddata)
-
-    return textData
-
-
 def setDuration(textData, duration):
     # 各単語のdurationを計算して辞書の要素に追加する
     cnt_all_mora = 0
@@ -53,6 +39,24 @@ def setDuration(textData, duration):
 
     for word in textData:
         word["duration"] = dur_per_mora * word["nmora"]
+    return textData
+
+def makeTextData(text, duration):
+    textData = []
+    words = mecab(text).split("\n")
+    for word in words:
+        w = re.split("[\t,]", word)
+        if(w[0]=="EOS"):
+            break
+
+        worddata = makeWordData(w)
+        textData.append(worddata)
+    
+    textData = setDuration(textData, duration)
+
+    return textData
+
+
 
 if __name__=="__main__":
     inputtext = input("Input text here >")
