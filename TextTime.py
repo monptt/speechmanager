@@ -7,8 +7,10 @@ from PyQt5.QtCore import QThread, QObject, pyqtSignal, QTimer
 TEXT_SECOND = 3  # 何秒単位でテキストを操作するか
 
 class Timer(QtWidgets.QWidget):
-    def __init__(self, parent=None, x=0, y=0, w=100, h=100):
+    def __init__(self, parent=None, x=0, y=0, w=100, h=100, toUpdate=[]):
         super().__init__(parent)
+        self.toUpdate = toUpdate
+
         # 時間処理変数
         self.t = 0
         self.running = False
@@ -41,6 +43,10 @@ class Timer(QtWidgets.QWidget):
         else:
             pass
         self.label.setText(str(self.t))
+
+        # タイマーに同期して変更する部分を更新
+        for obj in self.toUpdate:
+            obj.update(self.t)
     
     def start(self):
         print("timer start")
@@ -158,17 +164,26 @@ class moveRect(QObject):
                     print("----in the move thread------"+str(now_time))
 
 
-
+# 動く点
 class movePoint(QtWidgets.QWidget):
-    def __init__(self,parent=None):
+    T = 3 # dur 秒間を１周期とする
+
+    def __init__(self, parent=None, x=0, y=0, w=200, h=20):
         super().__init__(parent)
-        self.label = QtWidgets.QLabel('<h3>.</h3>', self)
-        self.label.setGeometry(0, 0, 500, 50)
+        self.setGeometry(x,y,w,h)
+        self.w = w
+        self.h = h
+
+        self.label = QtWidgets.QLabel('<h3>▲</h3>', self)
+        self.label.setGeometry(0, 0, w, h)
+
     def update(self,time:float):
         # self.painter.drawRect(10,10,10,10)
         print("------debug----time-------"+str(time))
-        self.label.setGeometry(int(float(500/3)*time), 0,
-                               500-int(float(500/3)*time), 50)
+        position = int((time%self.T)/self.T*self.w)
+        self.label.setGeometry(position, 0,
+                               self.w - position, self.h)
+
     def init_position(self):
         self.label.setGeometry(0, 0, 500, 50)
 

@@ -41,11 +41,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nowposition = TextTime.moveRect(self)
         self.nowposition.moveToThread(self.textnowThread)
         self.textnowThread.started.connect(self.nowposition.run)
-        self.nowposition.updateSignal.connect(self.movepoint.update)
 
 
         # 時間計測
-        self.timer = TextTime.Timer(self, 600, 500, 80, 60)
+        self.timer = TextTime.Timer(self, 600, 500, 80, 60, toUpdate=[self.movepoint])
 
         self.audioThread.start()
         # self.textThread.start()
@@ -82,9 +81,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.text.setGeometry(20, 500, 500, 50)
 
         # 動くバー
-        self.movepoint = TextTime.movePoint(self)
-        self.movepoint.setGeometry(20, 530, 500, 50)
-
+        self.movepoint = TextTime.movePoint(self, 20, 530, 500, 50)
 
     def loadText(self):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
