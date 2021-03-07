@@ -78,7 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.text.setGeometry(20, 500, 500, 50)
 
         # 動くバー
-        self.movepoint = movePoint(self)
+        self.movepoint = TextTime.movePoint(self)
         self.movepoint.setGeometry(20, 530, 500, 50)
 
 
@@ -150,18 +150,8 @@ class nowWindow(QtWidgets.QWidget):
         else:
             self.bg.setOpts(height=[y[-1]],brush='r') 
 
-class movePoint(QtWidgets.QWidget):
-    def __init__(self,parent=None):
-        super().__init__(parent)
-        self.label = QtWidgets.QLabel('<h3>.</h3>', self)
-        self.label.setGeometry(0, 0, 500, 50)
-    def update(self,time:float):
-        # self.painter.drawRect(10,10,10,10)
-        print("------debug----time-------"+str(time))
-        self.label.setGeometry(int(float(500/3)*time), 0,
-                               500-int(float(500/3)*time), 50)
-    def init_position(self):
-        self.label.setGeometry(0, 0, 500, 50)
+
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
     main = MainWindow()

@@ -20,6 +20,8 @@ class textWindow(QtWidgets.QWidget):
         self.textData = {}
         self.duration = 20 # 全部で何秒で読みたいか
 
+        self.running = False
+
     def update(self, newTextData):
         # テキスト（辞書型）を受け取り，表示
         # print("update text")
@@ -113,5 +115,16 @@ class moveRect(QObject):
 
 
 
-
+class movePoint(QtWidgets.QWidget):
+    def __init__(self,parent=None):
+        super().__init__(parent)
+        self.label = QtWidgets.QLabel('<h3>.</h3>', self)
+        self.label.setGeometry(0, 0, 500, 50)
+    def update(self,time:float):
+        # self.painter.drawRect(10,10,10,10)
+        print("------debug----time-------"+str(time))
+        self.label.setGeometry(int(float(500/3)*time), 0,
+                               500-int(float(500/3)*time), 50)
+    def init_position(self):
+        self.label.setGeometry(0, 0, 500, 50)
 
