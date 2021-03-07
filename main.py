@@ -30,21 +30,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.audioProcessing.updateSignal_ave.connect(self.graph.update_ave)
 
         # 外部スレッドからテキスト更新を行う
-        self.textThread = QThread()
-        self.textTime = TextTime.TextReplace(self)
-        self.textTime.moveToThread(self.textThread)
-        self.textThread.started.connect(self.textTime.run)
-        self.textTime.updateSignal.connect(self.text.update)
+        # self.textThread = QThread()
+        # self.textTime = TextTime.TextReplace(self)
+        # self.textTime.moveToThread(self.textThread)
+        # self.textThread.started.connect(self.textTime.run)
+        # self.textTime.updateSignal.connect(self.text.update)
 
         # テキスト上のどこを読むべきかを計算
-        self.textnowThread = QThread()
+        # self.textnowThread = QThread()
         self.nowposition = TextTime.moveRect(self)
-        self.nowposition.moveToThread(self.textnowThread)
-        self.textnowThread.started.connect(self.nowposition.run)
+        # self.nowposition.moveToThread(self.textnowThread)
+        # self.textnowThread.started.connect(self.nowposition.run)
 
 
         # 時間計測
-        self.timer = TextTime.Timer(self, 600, 500, 80, 60, toUpdate=[self.movepoint])
+        # toUpdate内に入れたウィジェットについて，タイマーに同期して update()が呼ばれる．
+        self.timer = TextTime.Timer(self, 600, 500, 80, 60,
+            toUpdate=[self.movepoint, self.nowposition, self.nowposition, self.textWindow])
 
         self.audioThread.start()
         # self.textThread.start()
@@ -77,8 +79,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.audioProcessing.loopback = not self.audioProcessing.loopback
         self.loopBackCheckBox.stateChanged.connect(toggleLoopback)
         self.loopBackCheckBox.setGeometry(20, 400, 500, 50)
-        self.text = TextTime.textWindow(self)
-        self.text.setGeometry(20, 500, 500, 50)
+        self.textWindow = TextTime.textWindow(self)
+        self.textWindow.setGeometry(20, 500, 500, 50)
 
         # 動くバー
         self.movepoint = TextTime.movePoint(self, 20, 530, 500, 50)
@@ -86,7 +88,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def loadText(self):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
-        self.text.loadTextFromFile(fname)
+        self.textWindow.loadTextFromFile(fname)
         self.textTime.start = True
         self.nowposition.start = True
 

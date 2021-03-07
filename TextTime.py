@@ -72,7 +72,8 @@ class textWindow(QtWidgets.QWidget):
 
         self.running = False
 
-    def update(self, newTextData):
+    def update(self, time):
+        newTextData = str(self.textData)
         # テキスト（辞書型）を受け取り，表示
         # print("update text")
         # self.textData = newTextData
@@ -107,6 +108,10 @@ class TextReplace(QObject):
         super().__init__()
         self.mainWindow = main
         self.start = False
+
+    def update(self, time):
+        # t=timeのときの表示を記述
+        pass
 
     def run(self):
         while True:
@@ -150,6 +155,11 @@ class moveRect(QObject):
         self.mainWindow = main
         self.start = False
         self.unittime = 0.1
+
+
+    def update(self, time):
+        # t=timeのときの表示を記述
+        pass
 
     def run(self):
         while True:
