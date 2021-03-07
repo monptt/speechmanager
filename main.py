@@ -1,9 +1,9 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPainter
 import pyqtgraph as pg
 import sys
 
-from PyQt5.QtCore import QThread, QObject, pyqtSignal
+from PyQt5.QtCore import QThread, QObject, pyqtSignal, Qt
 import AudioProcessing #音声処理用
 import TextProcessing # テキスト処理用
 import TextTime # テキスト表示管理
@@ -35,8 +35,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.textThread.started.connect(self.textTime.run)
         self.textTime.updateSignal.connect(self.text.update)
 
+        # テキスト上のどこを読むべきかを計算
+        self.textnowThread = QThread()
+        self.nowposition = TextTime.moveRect(self)
+        self.nowposition.moveToThread(self.textnowThread)
+        self.textnowThread.started.connect(self.nowposition.run)
+        self.nowposition.updateSignal.connect(self.movepoint.update)
+
         self.audioThread.start()
         self.textThread.start()
+        self.textnowThread.start()
 
     def initUI(self):
         # メニューバーのアイコン設定
@@ -68,6 +76,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.text = textWindow(self)
         self.text.setGeometry(20, 500, 500, 50)
 
+        # 動くバー
+        self.movepoint = movePoint()
+        self.movepoint.setGeometry(20, 550, 500, 20)
+
         # self.loopBackCheckBox.show()
 
     def loadText(self):
@@ -75,13 +87,17 @@ class MainWindow(QtWidgets.QMainWindow):
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
         self.text.loadTextFromFile(fname)
         self.textTime.start = True
+        self.nowposition.start = True
 
     
 class textWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.label = QtWidgets.QLabel('<h3>You can upload text</h3>', self)
+        self.label.setStyleSheet(
+            "border-color:blue; border-style:solid; border-width:4px; background-color:red;")
         self.label.setGeometry(0, 0, 500, 50)
+        
         
         self.textData = {}
         self.duration = 20 # 全部で何秒で読みたいか
@@ -91,7 +107,9 @@ class textWindow(QtWidgets.QWidget):
         # print("update text")
         # self.textData = newTextData
         # print(newTextData)
-        self.label.setText(f'<h3>{newTextData}</h3>')
+        # self.label.setText(f'<h3>{newTextData}</h3>')
+        self.label.setText(newTextData)
+        print("-------mojisuu-------"+str(len(newTextData)))
 
     def loadTextFromFile(self, fname):
         # fname[0]は選択したファイルのパス（ファイル名を含む）
@@ -165,6 +183,17 @@ class nowWindow(QtWidgets.QWidget):
             self.bg.setOpts(height=[y[-1]],brush='g')
         else:
             self.bg.setOpts(height=[y[-1]],brush='r') 
+
+class movePoint(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.painter = QPainter(self)
+        self.painter.setPen(Qt.red)
+        self.painter.setBrush(Qt.yellow)
+        self.painter.drawRect(0, 0, 10, 10)
+    def update(self,time:float):
+        # self.painter.drawRect(10,10,10,10)
+        print("------debug----time-------"+str(time))
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
