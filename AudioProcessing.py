@@ -38,6 +38,7 @@ class AudioProcessingClass(QObject):
         moraNumPerSecSum = 0
         moraNumPerSecNum = 0
         while True:
+            print("----------audio---------------")
             frames = self.stream.read(CHUNK)
 
             if self.loopback==True:

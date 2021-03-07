@@ -2,7 +2,8 @@ import re
 import MeCab
 import pprint
 import time
-mecab = MeCab.Tagger("").parse
+import ipadic
+mecab = MeCab.Tagger(ipadic.MECAB_ARGS).parse
 
 def makeWordData(word):
     # MeCabの解析結果（単語単位）を受け取り，整形して辞書を返す
@@ -15,7 +16,7 @@ def makeWordData(word):
     d["ctype"] = word[5]    # 活用型（サ変とか）
     d["cform"] = word[6]    # 活用形（連用形とか）
     d["origin"] = word[7]   # 原形
-    if(len(word)>=9):
+    if(len(word)>=10):
         d["yomi"]   = word[8]   # 読み
         d["pron"]   = word[9]   # 発音
     else:   # 未知語では読みが出てこないので，書字形で代用

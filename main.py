@@ -6,6 +6,7 @@ import sys
 from PyQt5.QtCore import QThread, QObject, pyqtSignal
 import AudioProcessing #音声処理用
 import TextProcessing # テキスト処理用
+import TextTime # テキスト表示管理
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -26,7 +27,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.audioProcessing.updateSignal.connect(self.realtime.update)
         self.audioProcessing.updateSignal_ave.connect(self.average.update)
         self.audioProcessing.updateSignal_ave.connect(self.graph.update_ave)
+
+        # 外部スレッドからテキスト更新を行う
+        self.textThread = QThread()
+        self.textTime = TextTime.TextReplace(self)
+        self.textTime.moveToThread(self.textThread)
+        self.textThread.started.connect(self.textTime.run)
+        self.textTime.updateSignal.connect(self.text.update)
+
         self.audioThread.start()
+        self.textThread.start()
 
     def initUI(self):
         # メニューバーのアイコン設定
@@ -44,7 +54,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         
         self.graph = graphWindow(self)
-        self.graph.setGeometry(20, 20, 500, 300)
+        self.graph.setGeometry(40, 40, 500, 300)
         self.realtime = nowWindow(self)
         self.realtime.setGeometry(600,20,100,300)
         self.average = averageNum(self)
@@ -64,6 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
         self.text.loadTextFromFile(fname)
+        self.textTime.start = True
 
     
 class textWindow(QtWidgets.QWidget):
@@ -77,9 +88,9 @@ class textWindow(QtWidgets.QWidget):
 
     def update(self, newTextData):
         # テキスト（辞書型）を受け取り，表示
-        print("update text")
-        self.textData = newTextData
-        print(newTextData)
+        # print("update text")
+        # self.textData = newTextData
+        # print(newTextData)
         self.label.setText(f'<h3>{newTextData}</h3>')
 
     def loadTextFromFile(self, fname):
@@ -91,7 +102,7 @@ class textWindow(QtWidgets.QWidget):
                 # 形態素解析されたテキストのデータ（辞書型）をセット
                 self.textData = TextProcessing.makeTextData(data, self.duration)
                 # 表示を更新
-                self.update(self.textData)
+                #self.update(self.textData)
 
 
 
