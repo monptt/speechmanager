@@ -5,6 +5,7 @@ import sys
 
 from PyQt5.QtCore import QThread, QObject, pyqtSignal
 import AudioProcessing #音声処理用
+import TextProcessing # テキスト処理用
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -60,29 +61,37 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.loopBackCheckBox.show()
 
     def loadText(self):
-
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
+        self.text.loadTextFromFile(fname)
 
-        # fname[0]は選択したファイルのパス（ファイル名を含む）
-        if fname[0]:
-            # ファイル読み込み
-            f = open(fname[0], 'r', encoding="utf-8")
-
-            # テキストエディタにファイル内容書き込み
-            with f:
-                data = f.read()
-                self.text.update(data)
     
 class textWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.label = QtWidgets.QLabel('<h3>You can upload text</h3>', self)
         self.label.setGeometry(0, 0, 500, 50)
-    def update(self, newText):
+        
+        self.textData = {}
+        self.duration = 20 # 全部で何秒で読みたいか
+
+    def update(self, newTextData):
+        # テキスト（辞書型）を受け取り，表示
         print("update text")
-        print(newText)
-        self.label.setText(f'<h3>{newText}</h3>')
+        self.textData = newTextData
+        print(newTextData)
+        self.label.setText(f'<h3>{newTextData}</h3>')
+
+    def loadTextFromFile(self, fname):
+        # fname[0]は選択したファイルのパス（ファイル名を含む）
+        if fname[0]:
+            # テキストエディタにファイル内容書き込み
+            with open(fname[0], 'r', encoding="utf-8") as f:
+                data = f.read()
+                # 形態素解析されたテキストのデータ（辞書型）をセット
+                self.textData = TextProcessing.makeTextData(data, self.duration)
+                # 表示を更新
+                self.update(self.textData)
 
 
 
