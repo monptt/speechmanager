@@ -43,6 +43,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.textnowThread.started.connect(self.nowposition.run)
         self.nowposition.updateSignal.connect(self.movepoint.update)
 
+
+        # 時間計測
+        self.timer = TextTime.Timer(self, 600, 500, 80, 60)
+
         self.audioThread.start()
         # self.textThread.start()
         # self.textnowThread.start()
@@ -142,7 +146,7 @@ class nowWindow(QtWidgets.QWidget):
         self.graphWidget.addItem(self.bg)
         self.graphWidget.setXRange(0,1)
         self.graphWidget.setYRange(0,7)
-        self.graphWidget.setBackground("#ffff")
+        self.graphWidget.setBackground("#ffffff")
     
     def update(self, x, y):
         if y[-1]<4:

@@ -2,10 +2,54 @@ from main import MainWindow
 import TextProcessing
 import time
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QThread, QObject, pyqtSignal
+from PyQt5.QtCore import QThread, QObject, pyqtSignal, QTimer
 
 TEXT_SECOND = 3  # 何秒単位でテキストを操作するか
 
+class Timer(QtWidgets.QWidget):
+    def __init__(self, parent=None, x=0, y=0, w=100, h=100):
+        super().__init__(parent)
+        # 時間処理変数
+        self.t = 0
+        self.running = False
+
+        # タイマー（内部処理用）
+        self.qtimer = QTimer(self)
+        self.qtimer.timeout.connect(self.update)
+        self.qtimer.start(10)
+
+        ### 時間表示用 GUI パーツ ###
+        self.mainWindow = parent
+        self.setGeometry(x, y, w, h)
+
+        self.label = QtWidgets.QLabel(str(self.t), self)
+        self.label.setGeometry(0, 0, w, h*0.5)
+        self.label.setStyleSheet(
+            "border: solid 1px black; background-color:#ffffff;")
+
+        self.startBtn = QtWidgets.QPushButton("Start", self)
+        self.startBtn.setGeometry(0, h*0.5, w*0.5, h*0.5)
+        self.startBtn.clicked.connect(self.start)
+
+        self.resetBtn = QtWidgets.QPushButton("Reset", self)
+        self.resetBtn.setGeometry(w*0.5, h*0.5, w*0.5, h*0.5)
+        self.resetBtn.clicked.connect(self.reset)
+
+    def update(self):
+        if(self.running):
+            self.t += 0.01
+        else:
+            pass
+        self.label.setText(str(self.t))
+    
+    def start(self):
+        print("timer start")
+        self.running = True
+
+    def reset(self):
+        print("timer reset")
+        self.t = 0
+        self.running = False
 
     
 class textWindow(QtWidgets.QWidget):
