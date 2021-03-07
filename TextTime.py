@@ -58,7 +58,6 @@ class moveRect(QObject):
     def run(self):
         while True:
             if self.mainWindow.text.textData:
-                print("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
                 now_time:float = 0
                 while self.start:
                     self.updateSignal.emit(now_time)
