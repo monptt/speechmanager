@@ -4,6 +4,7 @@ import pyqtgraph as pg
 import sys
 
 from PyQt5.QtCore import QThread, QObject, pyqtSignal, Qt
+from pyqtgraph.functions import disconnect
 import AudioProcessing #音声処理用
 import TextProcessing # テキスト処理用
 import TextTime # テキスト表示管理
@@ -97,6 +98,7 @@ class textWindow(QtWidgets.QWidget):
         self.label.setStyleSheet(
             "border-color:blue; border-style:solid; border-width:4px; background-color:red;")
         self.label.setGeometry(0, 0, 500, 50)
+        self.mainWindow = parent
         
         
         self.textData = {}
@@ -108,7 +110,14 @@ class textWindow(QtWidgets.QWidget):
         # self.textData = newTextData
         # print(newTextData)
         # self.label.setText(f'<h3>{newTextData}</h3>')
-        self.label.setText(newTextData)
+        if newTextData != "|":
+            self.label.setText(newTextData)
+        else:
+            self.label.setText("")
+            self.mainWindow.textTime.start = False
+            self.mainWindow.nowposition.start = False
+            self.mainWindow.movepoint.init_position()
+
         print("-------mojisuu-------"+str(len(newTextData)))
 
     def loadTextFromFile(self, fname):
@@ -194,7 +203,8 @@ class movePoint(QtWidgets.QWidget):
         print("------debug----time-------"+str(time))
         self.label.setGeometry(int(float(500/3)*time), 0,
                                500-int(float(500/3)*time), 50)
-
+    def init_position(self):
+        self.label.setGeometry(0, 0, 500, 50)
 def main():
     app = QtWidgets.QApplication(sys.argv)
     main = MainWindow()

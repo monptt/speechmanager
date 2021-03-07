@@ -19,7 +19,6 @@ class TextReplace(QObject):
                 textData = self.mainWindow.text.textData 
                 nowTextIndex = 0
                 brake_flag = False
-                print("------text data approved ----")
                 while self.start:
                     timeSum = 0
                     displayList = []
@@ -42,6 +41,8 @@ class TextReplace(QObject):
                         leng = textDict['duration'] / 0.1
                         displayText = displayText + textDict['text']
                         displayText = displayText + (" "*int(leng))
+                    if brake_flag and displayText=="":
+                        displayText="|"
                     print(displayText)
                     self.updateSignal.emit(displayText)
                     time.sleep(TEXT_SECOND)
