@@ -66,9 +66,11 @@ class textWindow(QtWidgets.QWidget):
             "border-color:blue; border-style:solid; border-width:4px; background-color:red;")
         self.label.setGeometry(0, 0, 500, 50)
         self.mainWindow = parent
-        
-        self.textData = {}
+
+        self.rawtextData = []  # ファイルからの形態素解析結果を格納
+        self.textList = []  # 読み出し配列を格納
         self.duration = 20 # 全部で何秒で読みたいか
+        self.showTime = float(3) # 何秒間テキストを表示するか
 
         self.running = False
 
@@ -96,10 +98,44 @@ class textWindow(QtWidgets.QWidget):
             with open(fname[0], 'r', encoding="utf-8") as f:
                 data = f.read()
                 # 形態素解析されたテキストのデータ（辞書型）をセット
-                self.textData = TextProcessing.makeTextData(data, self.duration)
-                print(self.textData)
+                self.rawtextData = TextProcessing.makeTextData(data, self.duration)
+                self.makeText()
                 # 表示を更新
                 #self.update(self.textData)
+    
+    def makeText(self):
+        nowTextIndex = 0
+        while True:
+            timeSum = float(0)
+            displayList = []
+            brake_flag = False
+            while True:
+                if timeSum + self.rawtextData[nowTextIndex]['duration'] < self.showTime:
+                    displayList.append(self.rawtextData[nowTextIndex])
+                    timeSum += self.rawtextData[nowTextIndex]['duration']
+                    nowTextIndex += 1
+                    if nowTextIndex == len(self.rawtextData):
+                        brake_flag = True
+                else:
+                    break
+                if brake_flag:
+                    break
+            
+            # 表示テキストの生成
+            displayText = ""
+            for textDict in displayList:
+                leng = textDict['duration'] / 0.1
+                displayText = displayText + textDict['text']
+                displayText = displayText + (" "*int(leng))
+            self.textList.append(displayText)
+            if nowTextIndex == len(self.rawtextData):
+                break
+
+
+
+
+
+
 
 class TextReplace(QObject):
     updateSignal = pyqtSignal(str)
