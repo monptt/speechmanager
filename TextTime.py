@@ -1,4 +1,4 @@
-from main import MainWindow
+from main import MainWindow, nowWindow
 import TextProcessing
 import time
 from PyQt5 import QtWidgets
@@ -75,21 +75,11 @@ class textWindow(QtWidgets.QWidget):
         self.running = False
 
     def update(self, time):
-        newTextData = str(self.textData)
-        # テキスト（辞書型）を受け取り，表示
-        # print("update text")
-        # self.textData = newTextData
-        # print(newTextData)
-        # self.label.setText(f'<h3>{newTextData}</h3>')
-        if newTextData != "|":
-            self.label.setText(newTextData)
+        nowIndex = int(time/3.0)
+        if nowIndex < len(self.textList):
+            self.label.setText(f'<h3>{self.textList[nowIndex]}</h3>')
         else:
-            self.label.setText("")
-            self.mainWindow.textTime.start = False
-            self.mainWindow.nowposition.start = False
-            self.mainWindow.movepoint.init_position()
-
-        print("-------mojisuu-------"+str(len(newTextData)))
+            self.label.setText('')
 
     def loadTextFromFile(self, fname):
         # fname[0]は選択したファイルのパス（ファイル名を含む）
