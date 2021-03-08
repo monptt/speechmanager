@@ -30,22 +30,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.audioProcessing.updateSignal_ave.connect(self.graph.update_ave)
 
         # 外部スレッドからテキスト更新を行う
-        self.textThread = QThread()
-        self.textTime = TextTime.TextReplace(self)
-        self.textTime.moveToThread(self.textThread)
-        self.textThread.started.connect(self.textTime.run)
-        self.textTime.updateSignal.connect(self.text.update)
+        # self.textThread = QThread()
+        # self.textTime = TextTime.TextReplace(self)
+        # self.textTime.moveToThread(self.textThread)
+        # self.textThread.started.connect(self.textTime.run)
+        # self.textTime.updateSignal.connect(self.text.update)
 
         # テキスト上のどこを読むべきかを計算
-        self.textnowThread = QThread()
+        # self.textnowThread = QThread()
         self.nowposition = TextTime.moveRect(self)
-        self.nowposition.moveToThread(self.textnowThread)
-        self.textnowThread.started.connect(self.nowposition.run)
-        self.nowposition.updateSignal.connect(self.movepoint.update)
+        # self.nowposition.moveToThread(self.textnowThread)
+        # self.textnowThread.started.connect(self.nowposition.run)
+
+
+        # 時間計測
+        # toUpdate内に入れたウィジェットについて，タイマーに同期して update()が呼ばれる．
+        self.timer = TextTime.Timer(self, 600, 500, 80, 60,
+            toUpdate=[self.movepoint, self.nowposition, self.nowposition, self.textWindow])
 
         self.audioThread.start()
-        self.textThread.start()
-        self.textnowThread.start()
+        # self.textThread.start()
+        # self.textnowThread.start()
 
     def initUI(self):
         # メニューバーのアイコン設定
@@ -74,63 +79,18 @@ class MainWindow(QtWidgets.QMainWindow):
             self.audioProcessing.loopback = not self.audioProcessing.loopback
         self.loopBackCheckBox.stateChanged.connect(toggleLoopback)
         self.loopBackCheckBox.setGeometry(20, 400, 500, 50)
-        self.text = textWindow(self)
-        self.text.setGeometry(20, 500, 500, 50)
+        self.textWindow = TextTime.textWindow(self)
+        self.textWindow.setGeometry(20, 500, 500, 50)
 
         # 動くバー
-        self.movepoint = movePoint(self)
-        self.movepoint.setGeometry(20, 530, 500, 50)
-
-        # self.loopBackCheckBox.show()
+        self.movepoint = TextTime.movePoint(self, 20, 530, 500, 50)
 
     def loadText(self):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
-        self.text.loadTextFromFile(fname)
+        self.textWindow.loadTextFromFile(fname)
         self.textTime.start = True
         self.nowposition.start = True
-
-    
-class textWindow(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.label = QtWidgets.QLabel('<h3>You can upload text</h3>', self)
-        self.label.setStyleSheet(
-            "border-color:blue; border-style:solid; border-width:4px; background-color:red;")
-        self.label.setGeometry(0, 0, 500, 50)
-        self.mainWindow = parent
-        
-        
-        self.textData = {}
-        self.duration = 20 # 全部で何秒で読みたいか
-
-    def update(self, newTextData):
-        # テキスト（辞書型）を受け取り，表示
-        # print("update text")
-        # self.textData = newTextData
-        # print(newTextData)
-        # self.label.setText(f'<h3>{newTextData}</h3>')
-        if newTextData != "|":
-            self.label.setText(newTextData)
-        else:
-            self.label.setText("")
-            self.mainWindow.textTime.start = False
-            self.mainWindow.nowposition.start = False
-            self.mainWindow.movepoint.init_position()
-
-        print("-------mojisuu-------"+str(len(newTextData)))
-
-    def loadTextFromFile(self, fname):
-        # fname[0]は選択したファイルのパス（ファイル名を含む）
-        if fname[0]:
-            # テキストエディタにファイル内容書き込み
-            with open(fname[0], 'r', encoding="utf-8") as f:
-                data = f.read()
-                # 形態素解析されたテキストのデータ（辞書型）をセット
-                self.textData = TextProcessing.makeTextData(data, self.duration)
-                # 表示を更新
-                #self.update(self.textData)
-
 
 
 class graphWindow(QtWidgets.QWidget):
@@ -185,7 +145,7 @@ class nowWindow(QtWidgets.QWidget):
         self.graphWidget.addItem(self.bg)
         self.graphWidget.setXRange(0,1)
         self.graphWidget.setYRange(0,7)
-        self.graphWidget.setBackground("#ffff")
+        self.graphWidget.setBackground("#ffffff")
     
     def update(self, x, y):
         if y[-1]<4:
@@ -193,18 +153,8 @@ class nowWindow(QtWidgets.QWidget):
         else:
             self.bg.setOpts(height=[y[-1]],brush='r') 
 
-class movePoint(QtWidgets.QWidget):
-    def __init__(self,parent=None):
-        super().__init__(parent)
-        self.label = QtWidgets.QLabel('<h3>.</h3>', self)
-        self.label.setGeometry(0, 0, 500, 50)
-    def update(self,time:float):
-        # self.painter.drawRect(10,10,10,10)
-        print("------debug----time-------"+str(time))
-        self.label.setGeometry(int(float(500/3)*time), 0,
-                               500-int(float(500/3)*time), 50)
-    def init_position(self):
-        self.label.setGeometry(0, 0, 500, 50)
+
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
     main = MainWindow()
