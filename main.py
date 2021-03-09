@@ -6,6 +6,7 @@ import sys
 from PyQt5.QtCore import QThread, QObject, pyqtSignal
 import AudioProcessing #音声処理用
 import TextProcessing # テキスト処理用
+import scriptEditor
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -30,17 +31,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def initUI(self):
         # メニューバーのアイコン設定
-        self.openFile = QtWidgets.QAction(QIcon('computer_folder.png'), 'Open', self)
+        self.openFile = QtWidgets.QAction(QIcon('pictures/computer_folder.png'), 'Open', self)
+        self.openScriptEditor = QtWidgets.QAction(QIcon('pictures/word_pro.png'), 'Script Editor', self)
         # ショートカット設定
         self.openFile.setShortcut('Ctrl+O')
+        self.openScriptEditor.setShortcut('Ctrl+e')
         # ステータスバー設定
-        self.openFile.setStatusTip('Open new File')
-        self.openFile.triggered.connect(self.loadText)
+        self.openFile.triggered.connect(self.loadTextFromFile)
+        self.openScriptEditor.triggered.connect(self.showScriptEditor)
 
         # メニューバー作成
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(self.openFile)   
+        fileMenu.addAction(self.openFile)
+        fileMenu.addAction(self.openScriptEditor)   
         
         
         self.graph = graphWindow(self)
@@ -60,10 +64,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # self.loopBackCheckBox.show()
 
-    def loadText(self):
+    def loadTextFromFile(self):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
-        self.text.loadTextFromFile(fname)
+        # fname[0]は選択したファイルのパス（ファイル名を含む）
+        if fname[0]:
+            # テキストエディタにファイル内容書き込み
+            with open(fname[0], 'r', encoding="utf-8") as f:
+                data = f.read()
+                self.text.makeTextDataFromInput(data, 20)
+    
+    def showScriptEditor(self):
+        print("Open Script Editor")
+        sE = scriptEditor.subWindow(self)
+        sE.show()
 
     
 class textWindow(QtWidgets.QWidget):
@@ -81,17 +95,13 @@ class textWindow(QtWidgets.QWidget):
         self.textData = newTextData
         print(newTextData)
         self.label.setText(f'<h3>{newTextData}</h3>')
-
-    def loadTextFromFile(self, fname):
-        # fname[0]は選択したファイルのパス（ファイル名を含む）
-        if fname[0]:
-            # テキストエディタにファイル内容書き込み
-            with open(fname[0], 'r', encoding="utf-8") as f:
-                data = f.read()
-                # 形態素解析されたテキストのデータ（辞書型）をセット
-                self.textData = TextProcessing.makeTextData(data, self.duration)
-                # 表示を更新
-                self.update(self.textData)
+    
+    def makeTextDataFromInput(self, data, sec):
+        self.duration = sec
+        # 形態素解析されたテキストのデータ（辞書型）をセット
+        self.textData = TextProcessing.makeTextData(data, self.duration)
+        # 表示を更新
+        self.update(self.textData)
 
 
 
