@@ -106,6 +106,7 @@ class textWindow(QtWidgets.QWidget):
                     len(self.textList[self.nowIndex]["text"])
             else:
                 self.label.setText('')
+                self.mainWindow.timer.reset()
         else:
             self.label.setText(f'<h3>{self.textList[self.nowIndex]["text"]}</h3>')
 
