@@ -64,9 +64,11 @@ class textWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.label = QtWidgets.QLabel('<h3>You can upload text</h3>', self)
+        self.label2 = QtWidgets.QLabel('<h3>Next Text</h3>', self)
         self.label.setStyleSheet(
             "border-color:blue; border-style:solid; border-width:4px; background-color:red;")
         self.label.setGeometry(0, 0, 500, 50)
+        self.label2.setGeometry(0, 100, 500, 50)
         self.mainWindow = parent
 
         self.rawtextData = []  # ファイルからの形態素解析結果を格納
@@ -86,6 +88,11 @@ class textWindow(QtWidgets.QWidget):
         self.mainWindow.movepoint.w = 12 * \
             len(self.textList[0]["text"])
         self.mainWindow.movepoint.T = self.textList[0]['time']
+        if len(self.textList) > 1:
+            self.label2.setText(
+                f'<h3>{self.textList[1]["text"]}</h3>')
+        else:
+            self.label2.setText('')
 
     def update(self, time):
         if len(self.textList) == 0:
@@ -100,6 +107,11 @@ class textWindow(QtWidgets.QWidget):
             if self.nowIndex < len(self.textList):
                 self.limitTime += self.textList[self.nowIndex]['time']
                 self.label.setText(f'<h3>{self.textList[self.nowIndex]["text"]}</h3>')
+                if self.nowIndex + 1 < len(self.textList):
+                    self.label2.setText(
+                        f'<h3>{self.textList[self.nowIndex+1]["text"]}</h3>')
+                else:
+                    self.label2.setText('')
                 self.mainWindow.movepoint.init_position()
                 self.mainWindow.movepoint.T = self.textList[self.nowIndex]['time']
                 self.mainWindow.movepoint.w = 12 * \

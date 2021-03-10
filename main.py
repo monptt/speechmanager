@@ -80,7 +80,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.loopBackCheckBox.stateChanged.connect(toggleLoopback)
         self.loopBackCheckBox.setGeometry(20, 400, 500, 50)
         self.textWindow = TextTime.textWindow(self)
-        self.textWindow.setGeometry(20, 500, 500, 50)
+        self.textWindow.setGeometry(20, 500, 500, 150)
 
         # 動くバー
         self.movepoint = TextTime.movePoint(self, w=500, h=50)
