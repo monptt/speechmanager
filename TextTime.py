@@ -40,13 +40,13 @@ class Timer(QtWidgets.QWidget):
     def update(self):
         if(self.running):
             self.t += 0.01
+            # タイマーに同期して変更する部分を更新
+            for obj in self.toUpdate:
+                obj.update(self.t)
         else:
             pass
         self.label.setText(str(self.t))
 
-        # タイマーに同期して変更する部分を更新
-        for obj in self.toUpdate:
-            obj.update(self.t)
     
     def start(self):
         print("timer start")
