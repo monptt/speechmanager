@@ -38,6 +38,7 @@ class AudioProcessingClass(QObject):
         moraNumPerSecSum = 0
         moraNumPerSecNum = 0
         while True:
+            # print("----------audio---------------")
             frames = self.stream.read(CHUNK)
 
             if self.loopback==True:
@@ -51,8 +52,8 @@ class AudioProcessingClass(QObject):
             #time.sleep(0.1)
             y = np.array([*y,moraNumPerSec][1:])
             x = np.arange(len(y))
-            print(x)
-            print(y)
+            # print(x)
+            # print(y)
             if moraNumPerSec != 0:
                 moraNumPerSecSum += moraNumPerSec
                 moraNumPerSecNum += 1

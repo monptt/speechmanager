@@ -1,12 +1,14 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPainter
 import pyqtgraph as pg
 import sys
 
-from PyQt5.QtCore import QThread, QObject, pyqtSignal
+from PyQt5.QtCore import QThread, QObject, pyqtSignal, Qt
+from pyqtgraph.functions import disconnect
 import AudioProcessing #音声処理用
 import TextProcessing # テキスト処理用
 import scriptEditor
+import TextTime # テキスト表示管理
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -27,7 +29,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.audioProcessing.updateSignal.connect(self.realtime.update)
         self.audioProcessing.updateSignal_ave.connect(self.average.update)
         self.audioProcessing.updateSignal_ave.connect(self.graph.update_ave)
+
+
+        # テキスト上のどこを読むべきかを計算
+        self.nowposition = TextTime.moveRect(self)
+
+        # 時間計測
+        # toUpdate内に入れたウィジェットについて，タイマーに同期して update()が呼ばれる．
+        self.timer = TextTime.Timer(self, 0, 0, 300, 100,
+            toUpdate=[self.movepoint, self.nowposition, self.textWindow])
+        self.timer.move(600,500)
+
         self.audioThread.start()
+
 
     def initUI(self):
         # メニューバーのアイコン設定
@@ -48,7 +62,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         
         self.graph = graphWindow(self)
-        self.graph.setGeometry(20, 20, 500, 300)
+        self.graph.setGeometry(40, 40, 500, 300)
         self.realtime = nowWindow(self)
         self.realtime.setGeometry(600,20,100,300)
         self.average = averageNum(self)
@@ -59,51 +73,23 @@ class MainWindow(QtWidgets.QMainWindow):
             self.audioProcessing.loopback = not self.audioProcessing.loopback
         self.loopBackCheckBox.stateChanged.connect(toggleLoopback)
         self.loopBackCheckBox.setGeometry(20, 400, 500, 50)
-        self.text = textWindow(self)
-        self.text.setGeometry(20, 500, 500, 50)
+        self.textWindow = TextTime.textWindow(self)
+        self.textWindow.setGeometry(20, 500, 500, 250)
 
-        # self.loopBackCheckBox.show()
+        # 動くバー
+        self.movepoint = TextTime.movePoint(self, w=500, h=50)
+        self.movepoint.setGeometry(20,550,500,50)
 
     def loadTextFromFile(self):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
-        # fname[0]は選択したファイルのパス（ファイル名を含む）
-        if fname[0]:
-            # テキストエディタにファイル内容書き込み
-            with open(fname[0], 'r', encoding="utf-8") as f:
-                data = f.read()
-                self.text.makeTextDataFromInput(data, 20)
-    
+        self.textWindow.loadTextFromFile(fname)
+        self.nowposition.start = True
+
     def showScriptEditor(self):
         print("Open Script Editor")
         sE = scriptEditor.subWindow(self)
         sE.show()
-
-    
-class textWindow(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.label = QtWidgets.QLabel('<h3>You can upload text</h3>', self)
-        self.label.setGeometry(0, 0, 500, 50)
-        
-        self.textData = {}
-        self.duration = 20 # 全部で何秒で読みたいか
-
-    def update(self, newTextData):
-        # テキスト（辞書型）を受け取り，表示
-        print("update text")
-        self.textData = newTextData
-        print(newTextData)
-        self.label.setText(f'<h3>{newTextData}</h3>')
-    
-    def makeTextDataFromInput(self, data, sec):
-        self.duration = sec
-        # 形態素解析されたテキストのデータ（辞書型）をセット
-        self.textData = TextProcessing.makeTextData(data, self.duration)
-        # 表示を更新
-        self.update(self.textData)
-
-
 
 class graphWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -123,13 +109,13 @@ class graphWindow(QtWidgets.QWidget):
 
     # 描画更新関数
     def update(self, x, y):
-        print("update graph")
-        print(x, y)
+        # print("update graph")
+        # print(x, y)
         self.line.setData(x,y)
     
     def update_ave(self, newAverage):
-        print("update average graph")
-        print(newAverage)
+        # print("update average graph")
+        # print(newAverage)
         self.horizontal.setData(self.x,[newAverage]*10)
 
 class averageNum(QtWidgets.QWidget):
@@ -142,8 +128,8 @@ class averageNum(QtWidgets.QWidget):
 
     # 描画更新関数
     def update(self, newAverage):
-        print("update average")
-        print(newAverage)
+        # print("update average")
+        # print(newAverage)
         self.label.setText(f'<h3>average:{round(newAverage,3)}[mora/sec]</h3>')
 
 class nowWindow(QtWidgets.QWidget):
@@ -157,13 +143,15 @@ class nowWindow(QtWidgets.QWidget):
         self.graphWidget.addItem(self.bg)
         self.graphWidget.setXRange(0,1)
         self.graphWidget.setYRange(0,7)
-        self.graphWidget.setBackground("#ffff")
+        self.graphWidget.setBackground("#ffffff")
     
     def update(self, x, y):
         if y[-1]<4:
             self.bg.setOpts(height=[y[-1]],brush='g')
         else:
             self.bg.setOpts(height=[y[-1]],brush='r') 
+
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

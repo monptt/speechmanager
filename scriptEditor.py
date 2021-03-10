@@ -38,7 +38,8 @@ class subWindow:
 
     # ここで親ウィンドウに値を渡している
     def setParamOriginal(self):
-        self.parent.text.makeTextDataFromInput(self.script.toPlainText(),int(self.sec.text()))
+        print("setParamOriginal")
+        self.parent.textWindow.makeTextDataFromInput(self.script.toPlainText(),int(self.sec.text()))
 
     def show(self):
         self.w.exec_()
