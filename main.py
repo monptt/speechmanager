@@ -83,7 +83,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.textWindow.setGeometry(20, 500, 500, 50)
 
         # 動くバー
-        self.movepoint = TextTime.movePoint(self, 20, 530, 500, 50)
+        self.movepoint = TextTime.movePoint(self, w=500, h=50)
+        self.movepoint.setGeometry(20,550,500,50)
 
     def loadText(self):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス

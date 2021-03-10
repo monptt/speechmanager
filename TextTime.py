@@ -70,16 +70,29 @@ class textWindow(QtWidgets.QWidget):
         self.rawtextData = []  # ファイルからの形態素解析結果を格納
         self.textList = []  # 読み出し配列を格納
         self.duration = 20 # 全部で何秒で読みたいか
-        self.showTime = float(3) # 何秒間テキストを表示するか
-
+        self.showTime = float(3) # 何秒間以内のテキストを表示するか
+        self.nowIndex = 0  # 今どのテキストを見せているか
+        self.limitTime = 0 # 今見せているテキストは何秒まで見せるべきか
         self.running = False
 
     def update(self, time):
-        nowIndex = int(time/3.0)
-        if nowIndex < len(self.textList):
-            self.label.setText(f'<h3>{self.textList[nowIndex]}</h3>')
-        else:
+        if len(self.textList) == 0:
+            return
+        if self.nowIndex == len(self.textList):
             self.label.setText('')
+        if time > self.limitTime:
+            self.nowIndex += 1
+            if self.nowIndex < len(self.textList):
+                self.limitTime += self.textList[self.nowIndex]['time']
+                self.label.setText(f'<h3>{self.textList[self.nowIndex]["text"]}</h3>')
+                self.mainWindow.movepoint.init_position()
+                self.mainWindow.movepoint.T = self.textList[self.nowIndex]['time']
+                self.mainWindow.movepoint.w = 12 * \
+                    len(self.textList[self.nowIndex]["text"])
+            else:
+                self.label.setText('')
+        else:
+            self.label.setText(f'<h3>{self.textList[self.nowIndex]["text"]}</h3>')
 
     def loadTextFromFile(self, fname):
         # fname[0]は選択したファイルのパス（ファイル名を含む）
@@ -113,13 +126,19 @@ class textWindow(QtWidgets.QWidget):
             
             # 表示テキストの生成
             displayText = ""
+            counter = 0.0
             for textDict in displayList:
                 leng = textDict['duration'] / 0.1
-                displayText = displayText + textDict['text']
-                displayText = displayText + (" "*int(leng))
-            self.textList.append(displayText)
+                counter += textDict['duration']
+                displayText = displayText + textDict['yomi']
+                displayText = displayText + ("　"*int(leng))
+            displayText += "."
+            self.textList.append({"text":displayText, "time":counter})
             if nowTextIndex == len(self.rawtextData):
                 break
+        self.limitTime = self.textList[0]['time']
+        self.mainWindow.movepoint.T = self.limitTime
+        self.mainWindow.movepoint.w = len(self.textList[0]['text']) * 12    
 
 
 
@@ -166,7 +185,7 @@ class TextReplace(QObject):
                     for textDict in displayList:
                         leng = textDict['duration'] / 0.1
                         displayText = displayText + textDict['text']
-                        displayText = displayText + (" "*int(leng))
+                        displayText = displayText + ("　"*int(leng))
                     if brake_flag and displayText=="":
                         displayText="|"
                     print(displayText)
@@ -209,17 +228,21 @@ class movePoint(QtWidgets.QWidget):
         self.setGeometry(x,y,w,h)
         self.w = w
         self.h = h
-
+        self.pastTime = 0
+        self.baseTime = 0
         self.label = QtWidgets.QLabel('<h3>▲</h3>', self)
         self.label.setGeometry(0, 0, w, h)
 
     def update(self,time:float):
+        self.baseTime += (time - self.pastTime)
+        self.pastTime = time
         # self.painter.drawRect(10,10,10,10)
-        print("------debug----time-------"+str(time))
-        position = int((time%self.T)/self.T*self.w)
+        position = int((self.baseTime%self.T)/self.T*self.w)
+        # position = int(time /self.T*self.w)
         self.label.setGeometry(position, 0,
                                self.w - position, self.h)
 
     def init_position(self):
-        self.label.setGeometry(0, 0, 500, 50)
+        self.baseTime = 0
+        self.label.setGeometry(0, 0, self.w, self.h)
 
