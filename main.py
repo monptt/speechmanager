@@ -90,7 +90,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
         self.textWindow.loadTextFromFile(fname)
-        self.textTime.start = True
         self.nowposition.start = True
 
 
