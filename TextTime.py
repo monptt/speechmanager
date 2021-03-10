@@ -56,6 +56,8 @@ class Timer(QtWidgets.QWidget):
         print("timer reset")
         self.t = 0
         self.running = False
+        for obj in self.toUpdate:
+            obj.update(self.t)
 
     
 class textWindow(QtWidgets.QWidget):
@@ -74,9 +76,22 @@ class textWindow(QtWidgets.QWidget):
         self.nowIndex = 0  # 今どのテキストを見せているか
         self.limitTime = 0 # 今見せているテキストは何秒まで見せるべきか
         self.running = False
+    
+    def windowInit(self):
+        self.mainWindow.movepoint.init_position()
+        self.nowIndex = 0
+        self.limitTime = self.textList[0]['time']
+        self.label.setText(
+            f'<h3>{self.textList[0]["text"]}</h3>')
+        self.mainWindow.movepoint.w = 12 * \
+            len(self.textList[0]["text"])
+        self.mainWindow.movepoint.T = self.textList[0]['time']
 
     def update(self, time):
         if len(self.textList) == 0:
+            return
+        elif time == 0:
+            self.windowInit()
             return
         if self.nowIndex == len(self.textList):
             self.label.setText('')
@@ -136,9 +151,7 @@ class textWindow(QtWidgets.QWidget):
             self.textList.append({"text":displayText, "time":counter})
             if nowTextIndex == len(self.rawtextData):
                 break
-        self.limitTime = self.textList[0]['time']
-        self.mainWindow.movepoint.T = self.limitTime
-        self.mainWindow.movepoint.w = len(self.textList[0]['text']) * 12    
+        self.windowInit()
 
 
 
