@@ -45,8 +45,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # 時間計測
         # toUpdate内に入れたウィジェットについて，タイマーに同期して update()が呼ばれる．
-        self.timer = TextTime.Timer(self, 600, 500, 80, 60,
+        self.timer = TextTime.Timer(self, 0, 0, 300, 100,
             toUpdate=[self.movepoint, self.nowposition, self.textWindow])
+        self.timer.move(600,500)
 
         self.audioThread.start()
         # self.textThread.start()
