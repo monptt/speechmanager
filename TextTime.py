@@ -1,7 +1,7 @@
 from main import MainWindow, nowWindow
 import TextProcessing
 import time
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import QThread, QObject, pyqtSignal, QTimer
 
 TEXT_SECOND = 3  # 何秒単位でテキストを操作するか
@@ -67,8 +67,10 @@ class textWindow(QtWidgets.QWidget):
         self.label2 = QtWidgets.QLabel('<h3>Next Text</h3>', self)
         self.label.setStyleSheet(
             "border-color:blue; border-style:solid; border-width:4px; background-color:red;")
+        self.input = inputValue(self)
         self.label.setGeometry(0, 0, 500, 50)
         self.label2.setGeometry(0, 100, 500, 50)
+        self.input.setGeometry(0,150,500,100)
         self.mainWindow = parent
 
         self.rawtextData = []  # ファイルからの形態素解析結果を格納
@@ -167,6 +169,21 @@ class textWindow(QtWidgets.QWidget):
         self.windowInit()
 
 
+class inputValue(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+        self.setGeometry(0, 0, 500, 100)
+        self.edit = QtWidgets.QLineEdit(self)
+        self.edit.move(0, 0)
+        self.edit.setValidator(QtGui.QIntValidator())
+        self.label = QtWidgets.QLabel(self)
+        self.label.move(0, 50)
+        # self.edit.textEdited.connect(self.label.setText)
+        self.edit.textChanged.connect(self.onChanged)
+    
+    def onChanged(self,text):
+        self.parent.duration = int(text)
 
 
 
