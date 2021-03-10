@@ -65,7 +65,7 @@ if __name__=="__main__":
         inputtext = "吾輩は猫である。名前はまだ無い。どこで生れたかとんと見当がつかぬ。何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。"
     duration = float(input("Input Duration[sec] here > "))
 
-    textData = makeTextData(inputtext)
+    textData = makeTextData(inputtext,duration)
     # 各単語の時間をセット
     setDuration(textData, duration)
     pprint.pprint(textData)

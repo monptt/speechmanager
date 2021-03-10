@@ -7,6 +7,7 @@ from PyQt5.QtCore import QThread, QObject, pyqtSignal, Qt
 from pyqtgraph.functions import disconnect
 import AudioProcessing #音声処理用
 import TextProcessing # テキスト処理用
+import scriptEditor
 import TextTime # テキスト表示管理
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -29,19 +30,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.audioProcessing.updateSignal_ave.connect(self.average.update)
         self.audioProcessing.updateSignal_ave.connect(self.graph.update_ave)
 
-        # 外部スレッドからテキスト更新を行う
-        # self.textThread = QThread()
-        # self.textTime = TextTime.TextReplace(self)
-        # self.textTime.moveToThread(self.textThread)
-        # self.textThread.started.connect(self.textTime.run)
-        # self.textTime.updateSignal.connect(self.text.update)
 
         # テキスト上のどこを読むべきかを計算
-        # self.textnowThread = QThread()
         self.nowposition = TextTime.moveRect(self)
-        # self.nowposition.moveToThread(self.textnowThread)
-        # self.textnowThread.started.connect(self.nowposition.run)
-
 
         # 時間計測
         # toUpdate内に入れたウィジェットについて，タイマーに同期して update()が呼ばれる．
@@ -50,22 +41,24 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.move(600,500)
 
         self.audioThread.start()
-        # self.textThread.start()
-        # self.textnowThread.start()
+
 
     def initUI(self):
         # メニューバーのアイコン設定
-        self.openFile = QtWidgets.QAction(QIcon('computer_folder.png'), 'Open', self)
+        self.openFile = QtWidgets.QAction(QIcon('pictures/computer_folder.png'), 'Open', self)
+        self.openScriptEditor = QtWidgets.QAction(QIcon('pictures/word_pro.png'), 'Script Editor', self)
         # ショートカット設定
         self.openFile.setShortcut('Ctrl+O')
+        self.openScriptEditor.setShortcut('Ctrl+e')
         # ステータスバー設定
-        self.openFile.setStatusTip('Open new File')
-        self.openFile.triggered.connect(self.loadText)
+        self.openFile.triggered.connect(self.loadTextFromFile)
+        self.openScriptEditor.triggered.connect(self.showScriptEditor)
 
         # メニューバー作成
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(self.openFile)   
+        fileMenu.addAction(self.openFile)
+        fileMenu.addAction(self.openScriptEditor)   
         
         
         self.graph = graphWindow(self)
@@ -87,12 +80,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.movepoint = TextTime.movePoint(self, w=500, h=50)
         self.movepoint.setGeometry(20,550,500,50)
 
-    def loadText(self):
+    def loadTextFromFile(self):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
         self.textWindow.loadTextFromFile(fname)
         self.nowposition.start = True
 
+    def showScriptEditor(self):
+        print("Open Script Editor")
+        sE = scriptEditor.subWindow(self)
+        sE.show()
 
 class graphWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -112,13 +109,13 @@ class graphWindow(QtWidgets.QWidget):
 
     # 描画更新関数
     def update(self, x, y):
-        print("update graph")
-        print(x, y)
+        # print("update graph")
+        # print(x, y)
         self.line.setData(x,y)
     
     def update_ave(self, newAverage):
-        print("update average graph")
-        print(newAverage)
+        # print("update average graph")
+        # print(newAverage)
         self.horizontal.setData(self.x,[newAverage]*10)
 
 class averageNum(QtWidgets.QWidget):
@@ -131,8 +128,8 @@ class averageNum(QtWidgets.QWidget):
 
     # 描画更新関数
     def update(self, newAverage):
-        print("update average")
-        print(newAverage)
+        # print("update average")
+        # print(newAverage)
         self.label.setText(f'<h3>average:{round(newAverage,3)}[mora/sec]</h3>')
 
 class nowWindow(QtWidgets.QWidget):

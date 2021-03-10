@@ -135,7 +135,15 @@ class textWindow(QtWidgets.QWidget):
                 self.makeText()
                 # 表示を更新
                 #self.update(self.textData)
-    
+
+    def makeTextDataFromInput(self, text, duration):
+        print(text)
+        self.duration = duration
+        self.rawtextData = text
+        # 形態素解析されたテキストのデータ（辞書型）をセット
+        self.rawtextData = TextProcessing.makeTextData(text, self.duration)
+        self.makeText()
+
     def makeText(self):
         nowTextIndex = 0
         while True:
@@ -181,7 +189,7 @@ class inputValue(QtWidgets.QWidget):
         self.label.move(0, 50)
         # self.edit.textEdited.connect(self.label.setText)
         self.edit.textChanged.connect(self.onChanged)
-    
+
     def onChanged(self,text):
         self.parent.duration = int(text)
 
