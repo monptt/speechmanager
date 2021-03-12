@@ -24,7 +24,7 @@ def getMfcc(RATE, sampleBytes, frames):
     mfccFeature = np.c_[mfcc, delta, deltaDelta]
     return mfccFeature
 
-def getVadFluctuation(mfccPower, deltaPower, filterWidth=10):
+def getVadFluctuation(mfccPower, deltaPower, filterWidth=15):
     mfccPower[mfccPower < 0] = 0
     deltaPower = np.abs(deltaPower)
     y = mfccPower * deltaPower
@@ -84,6 +84,6 @@ def run(RATE, sampleBytes, frames, SECOND):
 
     moraNum, moraNumPerSec = getMoraPerSec(vadSection,len(sx), SECOND)
 
-    vadThreashold = 2
+    vadThreshold = 2
 
     return moraNum, moraNumPerSec
