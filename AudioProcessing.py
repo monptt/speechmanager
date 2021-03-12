@@ -16,7 +16,7 @@ CHUNK = RATE * SECOND
 
 class AudioProcessingClass(QObject):
     updateSignal = pyqtSignal(np.ndarray, np.ndarray)
-    updateSignal_ave = pyqtSignal("float")
+    updateSignal_ave = pyqtSignal("float",np.ndarray)
 
     def __init__(self, main):
         super().__init__()
@@ -50,7 +50,7 @@ class AudioProcessingClass(QObject):
 
             moraNum, moraNumPerSec = mora.run(RATE, sampleBytes, frames, SECOND)
             #time.sleep(0.1)
-            y = np.array([*y,moraNumPerSec][1:])
+            y = np.array([*y,moraNumPerSec][0:])
             x = np.arange(len(y))
             # print(x)
             # print(y)
@@ -59,7 +59,7 @@ class AudioProcessingClass(QObject):
                 moraNumPerSecNum += 1
             self.updateSignal.emit(x, y)
             if moraNumPerSecNum != 0:
-                self.updateSignal_ave.emit(moraNumPerSecSum / moraNumPerSecNum)
+                self.updateSignal_ave.emit(moraNumPerSecSum / moraNumPerSecNum,x)
 
         # 終了時(このままでは呼ばれない)
         stream.stop_stream()

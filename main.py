@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QIcon, QPainter
+from PyQt5.QtGui import QIcon, QPainter, QPixmap
 import pyqtgraph as pg
 import sys
 
@@ -9,6 +9,7 @@ import AudioProcessing #音声処理用
 import TextProcessing # テキスト処理用
 import scriptEditor
 import TextTime # テキスト表示管理
+import numpy as np
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -64,7 +65,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.graph = graphWindow(self)
         self.graph.setGeometry(40, 40, 500, 300)
         self.realtime = nowWindow(self)
-        self.realtime.setGeometry(600,20,100,300)
+        self.realtime.setGeometry(600,20,400,400)
         self.average = averageNum(self)
         self.average.setGeometry(20,330,500,50)
         # 自分の声を聞くかどうか
@@ -113,10 +114,10 @@ class graphWindow(QtWidgets.QWidget):
         # print(x, y)
         self.line.setData(x,y)
     
-    def update_ave(self, newAverage):
+    def update_ave(self, newAverage,x):
         # print("update average graph")
         # print(newAverage)
-        self.horizontal.setData(self.x,[newAverage]*10)
+        self.horizontal.setData(x,[newAverage]*len(x))
 
 class averageNum(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -127,7 +128,7 @@ class averageNum(QtWidgets.QWidget):
 
 
     # 描画更新関数
-    def update(self, newAverage):
+    def update(self, newAverage,x):
         # print("update average")
         # print(newAverage)
         self.label.setText(f'<h3>average:{round(newAverage,3)}[mora/sec]</h3>')
@@ -135,21 +136,29 @@ class averageNum(QtWidgets.QWidget):
 class nowWindow(QtWidgets.QWidget):
     def __init__(self,parent=None):
         super().__init__(parent)
-        self.graphWidget = pg.PlotWidget(self)
-        self.graphWidget.setGeometry(0, 0, 500, 300)
-        x = [0]
-        y = [5]
-        self.bg = pg.BarGraphItem(x=x,height=y,width=0.5,brush='r')
-        self.graphWidget.addItem(self.bg)
-        self.graphWidget.setXRange(0,1)
-        self.graphWidget.setYRange(0,7)
-        self.graphWidget.setBackground("#ffffff")
+        self.futsuu = QPixmap()
+        self.hayai = QPixmap()
+        self.osoi = QPixmap()
+        self.futsuu.load("pictures/futsuu.png")
+        self.hayai.load("pictures/hayai.png")
+        self.osoi.load("pictures/osoi.png")
+
+        # plot data: x, y values
+        self.lbl = QtWidgets.QLabel(self)
+        self.lbl.setGeometry(0, 0, 400, 400)
+        self.lbl.setPixmap(self.futsuu)
     
     def update(self, x, y):
-        if y[-1]<4:
-            self.bg.setOpts(height=[y[-1]],brush='g')
+        # print("update graph")
+        # print(x, y)
+        y_3sec = y[len(y)-3:]
+        ave_y = np.average(y_3sec)
+        if ave_y < 2 :
+            self.lbl.setPixmap(self.osoi)
+        elif ave_y < 4:
+            self.lbl.setPixmap(self.futsuu)
         else:
-            self.bg.setOpts(height=[y[-1]],brush='r') 
+            self.lbl.setPixmap(self.hayai)
 
 
 
