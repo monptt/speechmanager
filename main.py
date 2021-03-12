@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QIcon, QPainter
+from PyQt5.QtGui import QIcon, QPainter, QPixmap
 import pyqtgraph as pg
 import sys
 
@@ -9,6 +9,7 @@ import AudioProcessing #音声処理用
 import TextProcessing # テキスト処理用
 import scriptEditor
 import TextTime # テキスト表示管理
+import numpy as np
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -28,7 +29,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.audioProcessing.updateSignal.connect(self.graph.update)
         self.audioProcessing.updateSignal.connect(self.realtime.update)
         self.audioProcessing.updateSignal_ave.connect(self.average.update)
-        self.audioProcessing.updateSignal_ave.connect(self.graph.update_ave)
 
 
         # テキスト上のどこを読むべきかを計算
@@ -62,23 +62,23 @@ class MainWindow(QtWidgets.QMainWindow):
         
         
         self.graph = graphWindow(self)
-        self.graph.setGeometry(40, 40, 500, 300)
+        self.graph.setGeometry(20, 20, 400, 400)
         self.realtime = nowWindow(self)
-        self.realtime.setGeometry(600,20,100,300)
+        self.realtime.setGeometry(600,100,100,300)
         self.average = averageNum(self)
-        self.average.setGeometry(20,330,500,50)
+        self.average.setGeometry(20,500,500,50)
         # 自分の声を聞くかどうか
         self.loopBackCheckBox = QtWidgets.QCheckBox("自分の声を聞く", self)
         def toggleLoopback():
             self.audioProcessing.loopback = not self.audioProcessing.loopback
         self.loopBackCheckBox.stateChanged.connect(toggleLoopback)
-        self.loopBackCheckBox.setGeometry(20, 400, 500, 50)
+        self.loopBackCheckBox.setGeometry(20, 600, 500, 50)
         self.textWindow = TextTime.textWindow(self)
-        self.textWindow.setGeometry(20, 500, 500, 250)
+        self.textWindow.setGeometry(20, 700, 800, 250)
 
         # 動くバー
-        self.movepoint = TextTime.movePoint(self, w=500, h=50)
-        self.movepoint.setGeometry(20,550,500,50)
+        self.movepoint = TextTime.movePoint(self, w=800, h=50)
+        self.movepoint.setGeometry(20,750,800,50)
 
     def loadTextFromFile(self):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
@@ -95,29 +95,35 @@ class graphWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.graphWidget = pg.PlotWidget(self)
-        self.graphWidget.setGeometry(0, 0, 500, 300)
-        self.graphWidget.setYRange(0,7)
-
         self.x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         self.y = [30, 32, 34, 32, 33, 31, 29, 32, 35, 45]
         self.initHorizontal = [0]*10
 
+        self.futsuu = QPixmap()
+        self.hayai = QPixmap()
+        self.osoi = QPixmap()
+        self.futsuu.load("pictures/futsuu.png")
+        self.hayai.load("pictures/hayai.png")
+        self.osoi.load("pictures/osoi.png")
+
         # plot data: x, y values
-        self.line = self.graphWidget.plot(self.x, self.y)
-        self.horizontal = self.graphWidget.plot(self.x, self.initHorizontal)
+        self.lbl = QtWidgets.QLabel(self)
+        self.lbl.setGeometry(0, 0, 400, 400)
+        self.lbl.setPixmap(self.futsuu)
 
     # 描画更新関数
     def update(self, x, y):
         # print("update graph")
         # print(x, y)
-        self.line.setData(x,y)
+        y_3sec = y[7:10]
+        ave_y = np.average(y_3sec)
+        if ave_y < 2 :
+            self.lbl.setPixmap(self.osoi)
+        elif ave_y < 4:
+            self.lbl.setPixmap(self.futsuu)
+        else:
+            self.lbl.setPixmap(self.hayai)
     
-    def update_ave(self, newAverage):
-        # print("update average graph")
-        # print(newAverage)
-        self.horizontal.setData(self.x,[newAverage]*10)
-
 class averageNum(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -155,6 +161,9 @@ class nowWindow(QtWidgets.QWidget):
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
+    
+
+
     main = MainWindow()
     main.show()
     sys.exit(app.exec_())
