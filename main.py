@@ -29,6 +29,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.audioProcessing.updateSignal.connect(self.graph.update)
         self.audioProcessing.updateSignal.connect(self.realtime.update)
         self.audioProcessing.updateSignal_ave.connect(self.average.update)
+        self.audioProcessing.updateSignal_ave.connect(self.graph.update_ave)
 
 
         # テキスト上のどこを読むべきかを計算
@@ -64,7 +65,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.graph = graphWindow(self)
         self.graph.setGeometry(20, 20, 400, 400)
         self.realtime = nowWindow(self)
-        self.realtime.setGeometry(600,100,100,300)
+        self.realtime.setGeometry(600,20,400,400)
         self.average = averageNum(self)
         self.average.setGeometry(20,500,500,50)
         # 自分の声を聞くかどうか
@@ -95,10 +96,47 @@ class graphWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.graphWidget = pg.PlotWidget(self)
+        self.graphWidget.setGeometry(0, 0, 500, 300)
+        self.graphWidget.setYRange(0,7)
+
         self.x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         self.y = [30, 32, 34, 32, 33, 31, 29, 32, 35, 45]
         self.initHorizontal = [0]*10
 
+        
+        # plot data: x, y values
+        self.line = self.graphWidget.plot(self.x, self.y)
+        self.horizontal = self.graphWidget.plot(self.x, self.initHorizontal)
+
+    # 描画更新関数
+    def update(self, x, y):
+        # print("update graph")
+        # print(x, y)
+        self.line.setData(x,y)
+    
+    def update_ave(self, newAverage,x):
+        # print("update average graph")
+        # print(newAverage)
+        self.horizontal.setData(x,[newAverage]*len(x))
+
+class averageNum(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.label = QtWidgets.QLabel(f'<h3>average:{0.0}[mora/sec]</h3>', self)
+        self.label.setGeometry(0, 0, 500, 50)
+
+
+    # 描画更新関数
+    def update(self, newAverage,x):
+        # print("update average")
+        # print(newAverage)
+        self.label.setText(f'<h3>average:{round(newAverage,3)}[mora/sec]</h3>')
+
+class nowWindow(QtWidgets.QWidget):
+    def __init__(self,parent=None):
+        super().__init__(parent)
         self.futsuu = QPixmap()
         self.hayai = QPixmap()
         self.osoi = QPixmap()
@@ -110,12 +148,11 @@ class graphWindow(QtWidgets.QWidget):
         self.lbl = QtWidgets.QLabel(self)
         self.lbl.setGeometry(0, 0, 400, 400)
         self.lbl.setPixmap(self.futsuu)
-
-    # 描画更新関数
+    
     def update(self, x, y):
         # print("update graph")
         # print(x, y)
-        y_3sec = y[7:10]
+        y_3sec = y[len(y)-3:]
         ave_y = np.average(y_3sec)
         if ave_y < 2 :
             self.lbl.setPixmap(self.osoi)
@@ -123,39 +160,6 @@ class graphWindow(QtWidgets.QWidget):
             self.lbl.setPixmap(self.futsuu)
         else:
             self.lbl.setPixmap(self.hayai)
-    
-class averageNum(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-        self.label = QtWidgets.QLabel(f'<h3>average:{0.0}[mora/sec]</h3>', self)
-        self.label.setGeometry(0, 0, 500, 50)
-
-
-    # 描画更新関数
-    def update(self, newAverage):
-        # print("update average")
-        # print(newAverage)
-        self.label.setText(f'<h3>average:{round(newAverage,3)}[mora/sec]</h3>')
-
-class nowWindow(QtWidgets.QWidget):
-    def __init__(self,parent=None):
-        super().__init__(parent)
-        self.graphWidget = pg.PlotWidget(self)
-        self.graphWidget.setGeometry(0, 0, 500, 300)
-        x = [0]
-        y = [5]
-        self.bg = pg.BarGraphItem(x=x,height=y,width=0.5,brush='r')
-        self.graphWidget.addItem(self.bg)
-        self.graphWidget.setXRange(0,1)
-        self.graphWidget.setYRange(0,7)
-        self.graphWidget.setBackground("#ffffff")
-    
-    def update(self, x, y):
-        if y[-1]<4:
-            self.bg.setOpts(height=[y[-1]],brush='g')
-        else:
-            self.bg.setOpts(height=[y[-1]],brush='r') 
 
 
 
