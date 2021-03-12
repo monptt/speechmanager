@@ -77,7 +77,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.textWindow.setGeometry(20, 700, 800, 250)
 
         # 動くバー
-        self.movepoint = TextTime.movePoint(self, w=100, h=50)
+        self.movepoint = TextTime.movePoint(self, w=800, h=50)
         self.movepoint.setGeometry(20,750,800,50)
 
     def loadTextFromFile(self):

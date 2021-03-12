@@ -64,6 +64,7 @@ class textWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.label = QtWidgets.QLabel('<h3>You can upload text</h3>', self)
+        self.label.setFont(QtGui.QFont('ＭＳ ゴシック",sans-serif'))
         self.label2 = QtWidgets.QLabel('<h3>Next Text</h3>', self)
         self.label.setStyleSheet(
             "border-color:black; border-style:solid; border-width:2px; ")
@@ -276,11 +277,11 @@ class moveRect(QObject):
 
 # 動く点
 class movePoint(QtWidgets.QWidget):
-    T = 3 # dur 秒間を１周期とする
 
     def __init__(self, parent=None, x=0, y=0, w=200, h=20):
         super().__init__(parent)
         self.setGeometry(x,y,w,h)
+        self.T = 3  # dur 秒間を１周期とする
         self.w = w
         self.h = h
         self.pastTime = 0
@@ -294,10 +295,13 @@ class movePoint(QtWidgets.QWidget):
         # self.painter.drawRect(10,10,10,10)
         position = int((self.baseTime%self.T)/self.T*self.w)
         # position = int(time /self.T*self.w)
+        print(self.w)
         self.label.setGeometry(position, 0,
                                self.w - position, self.h)
 
     def init_position(self):
         self.baseTime = 0
         self.label.setGeometry(0, 0, self.w, self.h)
+
+
 
