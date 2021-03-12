@@ -52,9 +52,7 @@ def makeTextData(text, duration):
 
         worddata = makeWordData(w)
         textData.append(worddata)
-    
     textData = setDuration(textData, duration)
-
     return textData
 
 

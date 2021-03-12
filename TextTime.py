@@ -140,9 +140,14 @@ class textWindow(QtWidgets.QWidget):
         print(text)
         self.duration = duration
         self.rawtextData = text
+        print("ok1")
         # 形態素解析されたテキストのデータ（辞書型）をセット
         self.rawtextData = TextProcessing.makeTextData(text, self.duration)
+        print("ok5")
+
         self.makeText()
+
+        
 
     def makeText(self):
         nowTextIndex = 0
