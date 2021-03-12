@@ -17,7 +17,6 @@ import struct
 def getMfcc(RATE, sampleBytes, frames):
     intFrames = struct.unpack(f'<{len(frames) // sampleBytes}h', frames)
     intFrames = np.array(intFrames)
-    print(type(intFrames))
     mfcc = psf.mfcc(intFrames, RATE)
     delta = psf.delta(mfcc, 2)
     deltaDelta = psf.delta(delta, 2)
