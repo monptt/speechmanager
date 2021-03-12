@@ -2,3 +2,6 @@ __pycache__/
 .vscode/
 .DS_Store
 sample.txt
+dist/
+build/
+main.spec

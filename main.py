@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon, QPainter, QPixmap
 import pyqtgraph as pg
 import sys
+import os
 
 from PyQt5.QtCore import QThread, QObject, pyqtSignal, Qt
 from pyqtgraph.functions import disconnect
@@ -10,6 +11,12 @@ import TextProcessing # テキスト処理用
 import scriptEditor
 import TextTime # テキスト表示管理
 import numpy as np
+
+
+def resourcePath(filename):
+  if hasattr(sys, "_MEIPASS"):
+      return os.path.join(sys._MEIPASS, filename)
+  return os.path.join(filename)
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -46,8 +53,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def initUI(self):
         # メニューバーのアイコン設定
-        self.openFile = QtWidgets.QAction(QIcon('pictures/computer_folder.png'), 'Open', self)
-        self.openScriptEditor = QtWidgets.QAction(QIcon('pictures/word_pro.png'), 'Script Editor', self)
+        self.openFile = QtWidgets.QAction(QIcon(resourcePath('pictures/computer_folder.png')), 'Open', self)
+        self.openScriptEditor = QtWidgets.QAction(QIcon(resourcePath('pictures/word_pro.png')), 'Script Editor', self)
         # ショートカット設定
         self.openFile.setShortcut('Ctrl+O')
         self.openScriptEditor.setShortcut('Ctrl+e')
