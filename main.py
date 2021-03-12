@@ -70,7 +70,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         
         self.graph = graphWindow(self)
-        self.graph.setGeometry(20, 20, 400, 400)
+        self.graph.setGeometry(20, 50, 500, 300)
         self.realtime = nowWindow(self)
         self.realtime.setGeometry(600,20,400,400)
         self.average = averageNum(self)
