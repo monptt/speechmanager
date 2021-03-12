@@ -66,11 +66,15 @@ class textWindow(QtWidgets.QWidget):
         self.label = QtWidgets.QLabel('<h3>You can upload text</h3>', self)
         self.label2 = QtWidgets.QLabel('<h3>Next Text</h3>', self)
         self.label.setStyleSheet(
-            "border-color:blue; border-style:solid; border-width:4px; background-color:red;")
+            "border-color:black; border-style:solid; border-width:2px; ")
+        self.label2.setStyleSheet(
+            "border-color:black; border-style:solid; border-width:2px; ")
         self.input = inputValue(self)
-        self.label.setGeometry(0, 0, 500, 50)
-        self.label2.setGeometry(0, 100, 500, 50)
-        self.input.setGeometry(0,150,500,100)
+        self.label.setGeometry(0, 0, 800, 50)
+        self.label2.setGeometry(0, 100, 800, 50)
+        self.input.setGeometry(0,180,200,100)
+        self.label3 = QtWidgets.QLabel('秒で読みたい', self)
+        self.label3.setGeometry(200, 150, 400, 100)
         self.mainWindow = parent
 
         self.rawtextData = []  # ファイルからの形態素解析結果を格納

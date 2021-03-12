@@ -62,9 +62,9 @@ class MainWindow(QtWidgets.QMainWindow):
         
         
         self.graph = graphWindow(self)
-        self.graph.setGeometry(0, 0, 400, 400)
+        self.graph.setGeometry(20, 20, 400, 400)
         self.realtime = nowWindow(self)
-        self.realtime.setGeometry(600,20,100,300)
+        self.realtime.setGeometry(600,100,100,300)
         self.average = averageNum(self)
         self.average.setGeometry(20,500,500,50)
         # 自分の声を聞くかどうか
@@ -74,11 +74,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.loopBackCheckBox.stateChanged.connect(toggleLoopback)
         self.loopBackCheckBox.setGeometry(20, 600, 500, 50)
         self.textWindow = TextTime.textWindow(self)
-        self.textWindow.setGeometry(20, 700, 500, 250)
+        self.textWindow.setGeometry(20, 700, 800, 250)
 
         # 動くバー
-        self.movepoint = TextTime.movePoint(self, w=500, h=50)
-        self.movepoint.setGeometry(20,550,500,50)
+        self.movepoint = TextTime.movePoint(self, w=100, h=50)
+        self.movepoint.setGeometry(20,750,800,50)
 
     def loadTextFromFile(self):
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
