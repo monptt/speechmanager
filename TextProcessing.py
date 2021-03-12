@@ -19,27 +19,43 @@ def makeWordData(word):
     if(len(word)>=10):
         d["yomi"]   = word[8]   # 読み
         d["pron"]   = word[9]   # 発音
+        d["nmora"] = len(re.sub(r"[ァィゥェォャュョ]", "", d["pron"]))
+        if(d["pos"]=="記号"):
+            d["nmora"] = 0
+
+        # コスト設定
+        d["cost"] = d["nmora"]
+        if(d["pos"]=="記号"):
+            if(d["text"]=="。"):
+                d["cost"] = 2.5
+            else:
+                d["cost"] = 1.5
+        elif(d["pos_1"]=="固有名詞"):
+            d["cost"] *= 1.5
+
     else:   # 未知語では読みが出てこないので，書字形で代用
         d["yomi"] = d["text"]
         d["pron"] = d["text"]
+        d["nmora"] = len(re.sub(r"[ァィゥェォャュョ]", "", d["pron"]))
+        d["cost"] = d["nmora"]*1.5
 
 
-    d["nmora"] = len(re.sub(r"[ァィゥェォャュョ]", "", d["pron"]))
-    if(d["pos"]=="記号"):
-        d["nmora"] = 0
     return d
 
 def setDuration(textData, duration):
     # 各単語のdurationを計算して辞書の要素に追加する
+    total_cost = 0
     cnt_all_mora = 0
     for word in textData:
         cnt_all_mora += word["nmora"]
-    
+        total_cost += word["cost"]
+
     # モーラごとの（平均）読み上げ時間
     dur_per_mora = duration/cnt_all_mora
 
     for word in textData:
-        word["duration"] = dur_per_mora * word["nmora"]
+        word["duration"] = (duration/total_cost)*word["cost"] #dur_per_mora * word["nmora"]
+        word["duration"] = min(word["duration"], 2.9)
     return textData
 
 def makeTextData(text, duration):

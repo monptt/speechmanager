@@ -64,13 +64,18 @@ class textWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.label = QtWidgets.QLabel('<h3>You can upload text</h3>', self)
+        self.label.setFont(QtGui.QFont('ＭＳ ゴシック",sans-serif'))
         self.label2 = QtWidgets.QLabel('<h3>Next Text</h3>', self)
         self.label.setStyleSheet(
-            "border-color:blue; border-style:solid; border-width:4px; background-color:red;")
+            "border-color:black; border-style:solid; border-width:2px; ")
+        self.label2.setStyleSheet(
+            "border-color:black; border-style:solid; border-width:2px; ")
         self.input = inputValue(self)
-        self.label.setGeometry(0, 0, 500, 50)
-        self.label2.setGeometry(0, 100, 500, 50)
-        self.input.setGeometry(0,150,500,100)
+        self.label.setGeometry(0, 0, 800, 50)
+        self.label2.setGeometry(0, 100, 800, 50)
+        self.input.setGeometry(0,180,200,100)
+        self.label3 = QtWidgets.QLabel('秒で読みたい', self)
+        self.label3.setGeometry(200, 150, 400, 100)
         self.mainWindow = parent
 
         self.rawtextData = []  # ファイルからの形態素解析結果を格納
@@ -272,11 +277,11 @@ class moveRect(QObject):
 
 # 動く点
 class movePoint(QtWidgets.QWidget):
-    T = 3 # dur 秒間を１周期とする
 
     def __init__(self, parent=None, x=0, y=0, w=200, h=20):
         super().__init__(parent)
         self.setGeometry(x,y,w,h)
+        self.T = 3  # dur 秒間を１周期とする
         self.w = w
         self.h = h
         self.pastTime = 0
@@ -290,10 +295,13 @@ class movePoint(QtWidgets.QWidget):
         # self.painter.drawRect(10,10,10,10)
         position = int((self.baseTime%self.T)/self.T*self.w)
         # position = int(time /self.T*self.w)
+        print(self.w)
         self.label.setGeometry(position, 0,
                                self.w - position, self.h)
 
     def init_position(self):
         self.baseTime = 0
         self.label.setGeometry(0, 0, self.w, self.h)
+
+
 
