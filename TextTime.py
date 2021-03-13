@@ -190,6 +190,7 @@ class inputValue(QtWidgets.QWidget):
         self.edit = QtWidgets.QLineEdit(self)
         self.edit.move(0, 0)
         self.edit.setValidator(QtGui.QIntValidator())
+        self.edit.setText(str(20))
         self.label = QtWidgets.QLabel(self)
         self.label.move(0, 50)
         # self.edit.textEdited.connect(self.label.setText)

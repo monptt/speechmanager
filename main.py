@@ -9,6 +9,7 @@ from pyqtgraph.functions import disconnect
 import AudioProcessing #音声処理用
 import TextProcessing # テキスト処理用
 import scriptEditor
+import thresholdEditor
 import TextTime # テキスト表示管理
 import numpy as np
 
@@ -55,18 +56,25 @@ class MainWindow(QtWidgets.QMainWindow):
         # メニューバーのアイコン設定
         self.openFile = QtWidgets.QAction(QIcon(resourcePath('pictures/computer_folder.png')), 'Open', self)
         self.openScriptEditor = QtWidgets.QAction(QIcon(resourcePath('pictures/word_pro.png')), 'Script Editor', self)
+        self.thresholdEditor = QtWidgets.QAction(
+            QIcon(resourcePath('pictures/word_pro.png')), 'Threshold Editor', self)
         # ショートカット設定
         self.openFile.setShortcut('Ctrl+O')
         self.openScriptEditor.setShortcut('Ctrl+e')
+        self.thresholdEditor.setShortcut('Ctrl+q')
         # ステータスバー設定
         self.openFile.triggered.connect(self.loadTextFromFile)
         self.openScriptEditor.triggered.connect(self.showScriptEditor)
+        self.thresholdEditor.triggered.connect(self.showThresholdEditor)
+
 
         # メニューバー作成
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(self.openFile)
-        fileMenu.addAction(self.openScriptEditor)   
+        fileMenu.addAction(self.openScriptEditor)
+        fileMenu.addAction(self.thresholdEditor)
+
         
         
         self.graph = graphWindow(self)
@@ -97,6 +105,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def showScriptEditor(self):
         print("Open Script Editor")
         sE = scriptEditor.subWindow(self)
+        sE.show()
+    
+    def showThresholdEditor(self):
+        print("Open Threshold Editor")
+        sE = thresholdEditor.subWindow(self, self.realtime.normal_threshold, self.realtime.hayai_threshold)
         sE.show()
 
 class graphWindow(QtWidgets.QWidget):
@@ -150,6 +163,8 @@ class nowWindow(QtWidgets.QWidget):
         self.futsuu.load("pictures/futsuu.png")
         self.hayai.load("pictures/hayai.png")
         self.osoi.load("pictures/osoi.png")
+        self.normal_threshold = 2
+        self.hayai_threshold = 4
 
         # plot data: x, y values
         self.lbl = QtWidgets.QLabel(self)
@@ -161,12 +176,17 @@ class nowWindow(QtWidgets.QWidget):
         # print(x, y)
         y_3sec = y[len(y)-3:]
         ave_y = np.average(y_3sec)
-        if ave_y < 2 :
+        if ave_y < self.normal_threshold :
             self.lbl.setPixmap(self.osoi)
-        elif ave_y < 4:
+        elif ave_y < self.hayai_threshold:
             self.lbl.setPixmap(self.futsuu)
         else:
             self.lbl.setPixmap(self.hayai)
+    
+    def ch_threshold(self, normal:int, hayai:int):
+        self.normal_threshold = normal
+        self.hayai_threshold = hayai
+        return
 
 
 
